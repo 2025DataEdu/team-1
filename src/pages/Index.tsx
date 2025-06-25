@@ -15,9 +15,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-6 space-y-6">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">국토교통부 공공데이터 현황</h1>
-          <p className="text-lg text-gray-600">
-            공공데이터포털의 국토교통부 개방데이터를 한눈에 분석하고 탐색하세요
-          </p>
+          <p className="text-lg text-gray-600">공공데이터포털에 등록된 국토교통부 개방데이터의 현황 및 활용도를 한 눈에 확인할 수 있습니다.</p>
         </div>
 
         <StatsCards />
