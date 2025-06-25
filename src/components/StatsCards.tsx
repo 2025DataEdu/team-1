@@ -1,9 +1,19 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Download, FileText } from "lucide-react";
+import { Eye, Download, FileText, Database } from "lucide-react";
 
 const StatsCards = () => {
   const stats = [
+    {
+      title: "공공데이터 수",
+      totalValue: "24,892",
+      totalChange: "+5.2%",
+      molandValue: "3,247",
+      molandChange: "+8.1%",
+      icon: Database,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50"
+    },
     {
       title: "활용 건수",
       totalValue: "1,247,892",
@@ -56,7 +66,7 @@ const StatsCards = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
         <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
