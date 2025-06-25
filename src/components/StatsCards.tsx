@@ -1,14 +1,18 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
+import { useOpenData } from "@/hooks/useOpenData";
 import { getStatusSummary } from "@/utils/dataStatusUtils";
 
 const StatsCards = () => {
   const { data: apiData, isLoading } = usePublicData();
+  const { data: supabaseData, isLoading: isSupabaseLoading } = useOpenData();
   
   // API에서 가져온 totalCount 사용, 로딩 중이거나 데이터가 없으면 기본값 사용
   const totalDatasetCount = apiData?.totalCount || 24892;
+  
+  // Supabase에서 가져온 국토교통부 데이터 수
+  const nationalTransportDataCount = supabaseData?.totalCount || 0;
   
   // API 데이터에서 download_cnt 합산
   const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
@@ -93,11 +97,18 @@ const StatsCards = () => {
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   <span className="text-sm font-bold text-blue-800">국토교통부</span>
                   <div className="px-2 py-0.5 rounded-full bg-blue-200 text-xs font-medium text-blue-800">
-                    13.0%
+                    {totalDatasetCount > 0 ? ((nationalTransportDataCount / totalDatasetCount) * 100).toFixed(1) : '0.0'}%
                   </div>
                 </div>
                 <div className="text-3xl font-bold text-blue-900 mb-2">
-                  3,247
+                  {isSupabaseLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+                      <span className="text-lg">로딩중...</span>
+                    </div>
+                  ) : (
+                    nationalTransportDataCount.toLocaleString()
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-blue-100">
