@@ -16,6 +16,7 @@ interface ProcessedDataItem {
   담당부서: string;
   등록일: string;
   마지막수정일: string;
+  분류체계: string;
 }
 
 const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
@@ -23,7 +24,18 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
 
   // Supabase 데이터를 UI에 맞게 변환하고 필터링
   const processedData: ProcessedDataItem[] = supabaseData?.data
-    ?.filter(item => item.목록명?.startsWith('국토교통부_') || item.목록명?.startsWith('국토교통부 '))
+    ?.filter(item => {
+      // 국토교통부 데이터 필터링 (useOpenDataCategories와 동일한 로직)
+      const listName = item.목록명 || '';
+      const department = item.담당부서 || '';
+      const agency = item.기관명 || '';
+      
+      return listName.includes('국토교통부') || 
+             department.includes('국토교통부') || 
+             agency.includes('국토교통부') ||
+             listName.startsWith('국토교통부_') || 
+             listName.startsWith('국토교통부 ');
+    })
     ?.map((item) => ({
       id: item.ID?.toString() || Math.random().toString(),
       목록명: item.목록명 || '목록명 없음',
@@ -38,7 +50,12 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       if (selectedCategory !== '전체' && item.분류체계 !== selectedCategory) {
         return false;
       }
-      return true;
+      
+      // 검색어 필터링
+      const matchesSearch = item.목록명.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.담당부서.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return matchesSearch;
     })
     ?.sort((a, b) => {
       // 마지막수정일 기준으로 내림차순 정렬 (최신순)
@@ -48,12 +65,8 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
     })
     ?.slice(0, 10) || []; // 최신 10개만 선택
 
-  // 검색어로 필터링 (이미 10개로 제한된 데이터에서)
-  const filteredData = processedData.filter(item => {
-    const matchesSearch = item.목록명.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.담당부서.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  console.log('DataTable - 처리된 데이터 수:', processedData.length);
+  console.log('DataTable - 선택된 카테고리:', selectedCategory);
 
   if (isLoading) {
     return (
@@ -99,7 +112,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((item) => (
+              {processedData.map((item) => (
                 <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4">
                     <div className="font-medium text-gray-900">{item.목록명}</div>
@@ -124,7 +137,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
           </table>
         </div>
 
-        {filteredData.length === 0 && (
+        {processedData.length === 0 && (
           <div className="text-center py-8">
             <div className="text-gray-500">
               {selectedCategory === '전체' ? '검색 조건에 맞는 데이터가 없습니다.' : `${selectedCategory} 분류의 데이터가 없습니다.`}

@@ -8,10 +8,21 @@ export const useOpenDataCategories = () => {
   const categoryStats = useMemo(() => {
     if (!openDataResult?.data) return [];
 
-    // 국토교통부 데이터만 필터링
-    const moitData = openDataResult.data.filter(item => 
-      item.목록명?.startsWith('국토교통부_') || item.목록명?.startsWith('국토교통부 ')
-    );
+    // 국토교통부 데이터만 필터링 (더 유연한 조건으로 수정)
+    const moitData = openDataResult.data.filter(item => {
+      const listName = item.목록명 || '';
+      const department = item.담당부서 || '';
+      const agency = item.기관명 || '';
+      
+      return listName.includes('국토교통부') || 
+             department.includes('국토교통부') || 
+             agency.includes('국토교통부') ||
+             listName.startsWith('국토교통부_') || 
+             listName.startsWith('국토교통부 ');
+    });
+
+    console.log('전체 데이터 수:', openDataResult.data.length);
+    console.log('국토교통부 필터링된 데이터 수:', moitData.length);
 
     // 분류체계별로 그룹화
     const categoryGroups: Record<string, number> = {};
@@ -29,6 +40,8 @@ export const useOpenDataCategories = () => {
         value: count // 차트용
       }))
       .sort((a, b) => b.count - a.count);
+
+    console.log('분류체계별 통계:', categories);
 
     // 전체 카테고리를 맨 앞에 추가
     const totalCount = moitData.length;
