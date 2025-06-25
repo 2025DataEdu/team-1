@@ -1,12 +1,17 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database } from "lucide-react";
+import { usePublicData } from "@/hooks/usePublicDataAPI";
 
 const StatsCards = () => {
+  const { data: apiData, isLoading } = usePublicData();
+  
+  // API에서 가져온 totalCount 사용, 로딩 중이거나 데이터가 없으면 기본값 사용
+  const totalDatasetCount = apiData?.totalCount || 24892;
+  
   const stats = [
     {
       title: "공공데이터 수",
-      totalValue: "24,892",
+      totalValue: totalDatasetCount.toLocaleString(),
       totalChange: "+5.2%",
       molandValue: "3,247",
       molandChange: "+8.1%",
@@ -81,7 +86,9 @@ const StatsCards = () => {
             {/* 공공데이터포털 전체 */}
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">공공데이터포털 전체</div>
-              <div className="text-2xl font-bold text-gray-900">{stat.totalValue}</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {isLoading && index === 0 ? "로딩중..." : stat.totalValue}
+              </div>
               <p className="text-xs text-green-600 mt-1">
                 <span className="font-medium">{stat.totalChange}</span> 전월 대비
               </p>

@@ -20,10 +20,10 @@ interface PublicDataResponse {
   totalCount: number;
 }
 
-// 공공데이터포털 데이터셋 목록 API 엔드포인트 수정
+// 올바른 API 엔드포인트 사용
 const API_BASE_URL = 'https://api.odcloud.kr/api';
-const SERVICE_ID = '15013094/v1/uddi:6480c9ae-983b-4cf1-87bb-8388c2e0f8d6'; // 공공데이터포털 데이터셋 목록 API
-const API_KEY = 'yw5u9YxBxJRLelgPOe%2BAJTsD7TDQeFvNj6o9Hts4LFhHo6YGOr6uSK9MFFnbqHNqhL9xUaC2Qev4TQbN5D0aRQ%3D%3D';
+const SERVICE_ID = '15077093/v1/file-data-list';
+const API_KEY = '0z1vbLA2y8MTIptTVN%2FvbAwQsdNSz3ONqBlfvHMm55ruUBTOWRCaO7HVmgjl3Tsq2PDs%2BbK5GW9QdweEU9tA5w%3D%3D';
 
 export const usePublicData = (page: number = 1, perPage: number = 1000) => {
   return useQuery({
@@ -49,6 +49,7 @@ export const usePublicData = (page: number = 1, perPage: number = 1000) => {
         
         const result = await response.json();
         console.log('API 성공 응답:', result);
+        console.log('totalCount 값:', result.totalCount);
         
         // API 응답이 성공이지만 데이터가 없는 경우 목업 데이터 사용
         if (!result.data || result.data.length === 0) {
@@ -170,6 +171,6 @@ const getMockData = (): PublicDataResponse => {
       }
     ],
     currentCount: 8,
-    totalCount: 8
+    totalCount: 24892
   };
 };
