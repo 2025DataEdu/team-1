@@ -12,26 +12,17 @@ const StatsCards = () => {
   // API 데이터에서 download_cnt 합산
   const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
 
-  // 활용현황 데이터
+  // 활용현황 데이터 ('활용 건수' 제거)
   const utilizationStats = [
     {
-      title: "활용 건수",
-      value: "458,291",
-      change: "+22.1%",
-      icon: Eye,
-      color: "text-green-600"
-    },
-    {
-      title: "다운로드",
-      value: "187,432", 
-      change: "+28.7%",
+      title: "다운로드", 
+      value: "187,432",
       icon: Download,
       color: "text-purple-600"
     },
     {
       title: "API 호출",
       value: "892K",
-      change: "+35.8%",
       icon: FileText,
       color: "text-orange-600"
     }
@@ -98,7 +89,6 @@ const StatsCards = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-blue-900">{stat.value}</div>
-                    <div className="text-xs text-blue-600">{stat.change}</div>
                   </div>
                 </div>
               ))}
