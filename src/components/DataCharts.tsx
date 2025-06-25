@@ -1,44 +1,65 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
+import { useOpenData } from "@/hooks/useOpenData";
+import { useMemo } from "react";
 
 interface DataChartsProps {
   selectedCategory: string;
 }
 
 const DataCharts = ({ selectedCategory }: DataChartsProps) => {
-  const categoryData = [
-    { name: "교통정보", value: 287, downloads: 15420 },
-    { name: "부동산", value: 195, downloads: 12380 },
-    { name: "건설", value: 158, downloads: 8950 },
-    { name: "항공", value: 142, downloads: 7630 },
-    { name: "철도", value: 125, downloads: 6890 },
-    { name: "해운", value: 98, downloads: 5210 },
-    { name: "기타", value: 242, downloads: 9850 }
-  ];
+  const { categories, isLoading } = useOpenDataCategories();
+  const { data: openDataResult } = useOpenData();
 
-  const monthlyTrend = [
-    { month: "1월", datasets: 1150, usage: 38500 },
-    { month: "2월", datasets: 1180, usage: 41200 },
-    { month: "3월", datasets: 1195, usage: 43800 },
-    { month: "4월", datasets: 1220, usage: 45100 },
-    { month: "5월", datasets: 1235, usage: 44900 },
-    { month: "6월", datasets: 1247, usage: 45829 }
-  ];
+  // 차트용 데이터 준비 (전체 제외하고 상위 7개)
+  const chartData = useMemo(() => {
+    return categories.slice(1, 8); // 전체를 제외하고 상위 7개
+  }, [categories]);
+
+  // 월별 추이 데이터 (실제 데이터 기반 시뮬레이션)
+  const monthlyTrend = useMemo(() => {
+    const totalDatasets = openDataResult?.totalCount || 0;
+    const baseCount = Math.floor(totalDatasets * 0.8);
+    
+    return [
+      { month: "1월", datasets: baseCount, usage: Math.floor(baseCount * 30) },
+      { month: "2월", datasets: Math.floor(baseCount * 1.02), usage: Math.floor(baseCount * 32) },
+      { month: "3월", datasets: Math.floor(baseCount * 1.05), usage: Math.floor(baseCount * 35) },
+      { month: "4월", datasets: Math.floor(baseCount * 1.08), usage: Math.floor(baseCount * 36) },
+      { month: "5월", datasets: Math.floor(baseCount * 1.12), usage: Math.floor(baseCount * 34) },
+      { month: "6월", datasets: totalDatasets, usage: Math.floor(totalDatasets * 37) }
+    ];
+  }, [openDataResult?.totalCount]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-gray-600">차트 데이터 로딩 중...</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
-            카테고리별 데이터셋 분포
+            분류체계별 데이터셋 분포
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={categoryData}>
+            <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="name" 
@@ -46,13 +67,14 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
                 textAnchor="end"
                 height={80}
                 fontSize={12}
+                interval={0}
               />
               <YAxis />
               <Tooltip 
                 formatter={(value) => [value, "데이터셋 수"]}
                 labelStyle={{ color: '#374151' }}
               />
-              <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -61,27 +83,27 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
-            다운로드 현황
+            분류체계별 비율
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={categoryData}
+                data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
-                dataKey="downloads"
+                dataKey="count"
               >
-                {categoryData.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [value.toLocaleString(), "다운로드"]} />
+              <Tooltip formatter={(value) => [value.toLocaleString(), "데이터셋 수"]} />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>

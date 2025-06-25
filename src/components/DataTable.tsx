@@ -21,7 +21,7 @@ interface ProcessedDataItem {
 const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   const { data: supabaseData, isLoading, error } = useOpenData();
 
-  // Supabase 데이터를 UI에 맞게 변환하고 최신 10개만 선택
+  // Supabase 데이터를 UI에 맞게 변환하고 필터링
   const processedData: ProcessedDataItem[] = supabaseData?.data
     ?.filter(item => item.목록명?.startsWith('국토교통부_') || item.목록명?.startsWith('국토교통부 '))
     ?.map((item) => ({
@@ -30,8 +30,16 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       목록타입: item.목록타입 || '타입 없음',
       담당부서: item.담당부서 || '담당부서 없음',
       등록일: item.등록일 ? new Date(item.등록일).toLocaleDateString() : '날짜 없음',
-      마지막수정일: item.마지막수정일 ? new Date(item.마지막수정일).toLocaleDateString() : '날짜 없음'
+      마지막수정일: item.마지막수정일 ? new Date(item.마지막수정일).toLocaleDateString() : '날짜 없음',
+      분류체계: item.분류체계 || '기타'
     }))
+    ?.filter(item => {
+      // 카테고리 필터링
+      if (selectedCategory !== '전체' && item.분류체계 !== selectedCategory) {
+        return false;
+      }
+      return true;
+    })
     ?.sort((a, b) => {
       // 마지막수정일 기준으로 내림차순 정렬 (최신순)
       const dateA = new Date(a.마지막수정일);
@@ -40,7 +48,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
     })
     ?.slice(0, 10) || []; // 최신 10개만 선택
 
-  // 카테고리와 검색어로 필터링 (이미 10개로 제한된 데이터에서)
+  // 검색어로 필터링 (이미 10개로 제한된 데이터에서)
   const filteredData = processedData.filter(item => {
     const matchesSearch = item.목록명.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.담당부서.toLowerCase().includes(searchTerm.toLowerCase());
@@ -75,7 +83,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-800">
-          국토교통부 최신 등록 데이터셋 (최근 10개)
+          국토교통부 최신 등록 데이터셋 ({selectedCategory === '전체' ? '전체' : selectedCategory})
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -118,7 +126,9 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
 
         {filteredData.length === 0 && (
           <div className="text-center py-8">
-            <div className="text-gray-500">검색 조건에 맞는 데이터가 없습니다.</div>
+            <div className="text-gray-500">
+              {selectedCategory === '전체' ? '검색 조건에 맞는 데이터가 없습니다.' : `${selectedCategory} 분류의 데이터가 없습니다.`}
+            </div>
           </div>
         )}
       </CardContent>

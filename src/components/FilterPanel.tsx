@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter } from "lucide-react";
+import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
 
 interface FilterPanelProps {
   selectedCategory: string;
@@ -18,16 +19,19 @@ const FilterPanel = ({
   searchTerm, 
   setSearchTerm 
 }: FilterPanelProps) => {
-  const categories = [
-    { name: "전체", count: 1247 },
-    { name: "교통정보", count: 287 },
-    { name: "부동산", count: 195 },
-    { name: "건설", count: 158 },
-    { name: "항공", count: 142 },
-    { name: "철도", count: 125 },
-    { name: "해운", count: 98 },
-    { name: "기타", count: 242 }
-  ];
+  const { categories, isLoading } = useOpenDataCategories();
+
+  if (isLoading) {
+    return (
+      <Card className="sticky top-6">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center h-32">
+            <div className="text-sm text-gray-600">카테고리 로딩 중...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="sticky top-6">
@@ -49,8 +53,8 @@ const FilterPanel = ({
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-3">카테고리</h3>
-          <div className="space-y-2">
+          <h3 className="text-sm font-medium text-gray-700 mb-3">분류체계</h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
             {categories.map((category) => (
               <Button
                 key={category.name}
@@ -58,8 +62,8 @@ const FilterPanel = ({
                 className="w-full justify-between text-left"
                 onClick={() => setSelectedCategory(category.name)}
               >
-                <span>{category.name}</span>
-                <Badge variant="secondary" className="ml-2">
+                <span className="truncate">{category.name}</span>
+                <Badge variant="secondary" className="ml-2 flex-shrink-0">
                   {category.count.toLocaleString()}
                 </Badge>
               </Button>
@@ -68,20 +72,20 @@ const FilterPanel = ({
         </div>
 
         <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">활용도 순위</h3>
+          <h3 className="text-sm font-medium text-gray-700 mb-3">상위 분류</h3>
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">1. 실시간 교통정보</span>
-              <Badge className="bg-red-100 text-red-800">HOT</Badge>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">2. 부동산 실거래가</span>
-              <Badge className="bg-orange-100 text-orange-800">인기</Badge>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">3. 건축물 대장</span>
-              <Badge className="bg-blue-100 text-blue-800">추천</Badge>
-            </div>
+            {categories.slice(1, 4).map((category, index) => (
+              <div key={category.name} className="flex justify-between items-center text-sm">
+                <span className="text-gray-600 truncate">{index + 1}. {category.name}</span>
+                <Badge className={
+                  index === 0 ? "bg-red-100 text-red-800" :
+                  index === 1 ? "bg-orange-100 text-orange-800" :
+                  "bg-blue-100 text-blue-800"
+                }>
+                  {index === 0 ? "HOT" : index === 1 ? "인기" : "추천"}
+                </Badge>
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>
