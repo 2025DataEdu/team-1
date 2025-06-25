@@ -53,14 +53,14 @@ const StatsCards = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* 공공데이터포털 전체 */}
-          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200">
-            <div className="flex items-center justify-between">
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200 h-32">
+            <div className="flex items-center justify-between h-full">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-gray-400"></div>
                   <span className="text-sm font-medium text-gray-700">공공데이터포털 전체</span>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">
+                <div className="text-3xl font-bold text-gray-900 mb-2">
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
@@ -82,8 +82,8 @@ const StatsCards = () => {
           </div>
           
           {/* 국토교통부 */}
-          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm">
-            <div className="flex items-center justify-between">
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm h-32">
+            <div className="flex items-center justify-between h-full">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
@@ -92,7 +92,7 @@ const StatsCards = () => {
                     13.0%
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-blue-900 mb-1">
+                <div className="text-3xl font-bold text-blue-900 mb-2">
                   3,247
                 </div>
                 <div className="flex items-center space-x-2">
@@ -133,8 +133,8 @@ const StatsCards = () => {
             </div>
             <div className="grid grid-cols-1 gap-4">
               {utilizationStats.map((stat, index) => (
-                <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200`}>
-                  <div className="flex items-center justify-between">
+                <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
+                  <div className="flex items-center justify-between h-full">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 rounded-lg bg-white shadow-sm">
                         <stat.icon className={`h-5 w-5 ${stat.color}`} />
