@@ -1,11 +1,8 @@
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Download, Eye, Calendar, ExternalLink } from "lucide-react";
-import { usePublicData } from "@/hooks/usePublicDataAPI";
-import { getDataStatus } from "@/utils/dataStatusUtils";
+import { Calendar } from "lucide-react";
+import { useOpenData } from "@/hooks/useOpenData";
 
 interface DataTableProps {
   selectedCategory: string;
@@ -14,78 +11,41 @@ interface DataTableProps {
 
 interface ProcessedDataItem {
   id: string;
-  title: string;
-  category: string;
-  provider: string;
-  updateDate: string;
-  downloads: number;
-  views: number;
-  format: string;
-  status: string;
-  dataStatus: ReturnType<typeof getDataStatus>;
-  nextRegistrationDate: string;
+  목록명: string;
+  목록타입: string;
+  담당부서: string;
+  등록일: string;
+  마지막수정일: string;
 }
 
 const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  
-  const { data: apiData, isLoading, error } = usePublicData();
+  const { data: supabaseData, isLoading, error } = useOpenData();
 
-  // API 데이터를 UI에 맞게 변환
-  const processedData: ProcessedDataItem[] = apiData?.data?.map((item) => {
-    const createdAt = item.registDt || item.created_at || '';
-    const nextRegDate = item.next_registration_date || '없음';
-    const dataStatus = getDataStatus(createdAt, nextRegDate);
-    
-    return {
-      id: item.datasetId || Math.random().toString(),
-      title: item.datasetNm || '데이터셋명 없음',
-      category: item.categoryNm || '기타',
-      provider: item.providerNm || '제공기관 없음',
-      updateDate: createdAt ? createdAt.split(' ')[0] : '날짜 없음',
-      downloads: item.downloadCnt || 0,
-      views: item.inquiryCnt || 0,
-      format: item.dataFormat || 'JSON',
-      status: item.serviceStts === '서비스' ? '서비스중' : item.serviceStts || '알 수 없음',
-      dataStatus,
-      nextRegistrationDate: nextRegDate
-    };
-  }) || [];
+  // Supabase 데이터를 UI에 맞게 변환하고 최신 10개만 선택
+  const processedData: ProcessedDataItem[] = supabaseData?.data
+    ?.filter(item => item.목록명?.startsWith('국토교통부_') || item.목록명?.startsWith('국토교통부 '))
+    ?.map((item) => ({
+      id: item.ID?.toString() || Math.random().toString(),
+      목록명: item.목록명 || '목록명 없음',
+      목록타입: item.목록타입 || '타입 없음',
+      담당부서: item.담당부서 || '담당부서 없음',
+      등록일: item.등록일 ? new Date(item.등록일).toLocaleDateString() : '날짜 없음',
+      마지막수정일: item.마지막수정일 ? new Date(item.마지막수정일).toLocaleDateString() : '날짜 없음'
+    }))
+    ?.sort((a, b) => {
+      // 마지막수정일 기준으로 내림차순 정렬 (최신순)
+      const dateA = new Date(a.마지막수정일);
+      const dateB = new Date(b.마지막수정일);
+      return dateB.getTime() - dateA.getTime();
+    })
+    ?.slice(0, 10) || []; // 최신 10개만 선택
 
-  // 국토교통부 데이터만 필터링 - 데이터셋명이 '국토교통부_' 또는 '국토교통부 '로 시작하는 경우
-  const filteredByMinistry = processedData.filter(item => 
-    item.title.startsWith('국토교통부_') || item.title.startsWith('국토교통부 ')
-  );
-
-  // 카테고리와 검색어로 필터링
-  const filteredData = filteredByMinistry.filter(item => {
-    const matchesCategory = selectedCategory === "전체" || item.category === selectedCategory;
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.provider.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }).sort((a, b) => {
-    // Sort by updateDate in descending order (most recent first)
-    return new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime();
+  // 카테고리와 검색어로 필터링 (이미 10개로 제한된 데이터에서)
+  const filteredData = processedData.filter(item => {
+    const matchesSearch = item.목록명.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.담당부서.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   });
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = filteredData.slice(startIndex, endIndex);
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "서비스중":
-        return <Badge className="bg-green-100 text-green-800">서비스중</Badge>;
-      case "준비중":
-        return <Badge className="bg-yellow-100 text-yellow-800">준비중</Badge>;
-      case "중단":
-        return <Badge className="bg-red-100 text-red-800">중단</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
 
   if (isLoading) {
     return (
@@ -114,79 +74,41 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            국토교통부 최신 등록 데이터셋 ({filteredData.length.toLocaleString()}건)
-          </CardTitle>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              전체 다운로드
-            </Button>
-            <Button variant="outline" size="sm">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              API 문서
-            </Button>
-          </div>
-        </div>
+        <CardTitle className="text-lg font-semibold text-gray-800">
+          국토교통부 최신 등록 데이터셋 (최근 10개)
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-700">데이터셋명</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">카테고리</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">제공기관</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">목록명</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">목록타입</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">담당부서</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">등록일</th>
-                <th className="text-center py-3 px-4 font-medium text-gray-700">다운로드</th>
-                <th className="text-center py-3 px-4 font-medium text-gray-700">조회수</th>
-                <th className="text-center py-3 px-4 font-medium text-gray-700">형식</th>
-                <th className="text-center py-3 px-4 font-medium text-gray-700">상태</th>
-                <th className="text-center py-3 px-4 font-medium text-gray-700">갱신상태</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">마지막수정일</th>
               </tr>
             </thead>
             <tbody>
-              {currentData.map((item) => (
+              {filteredData.map((item) => (
                 <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4">
-                    <div className="font-medium text-gray-900">{item.title}</div>
-                    {item.nextRegistrationDate && item.nextRegistrationDate !== '없음' && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        차기갱신: {item.nextRegistrationDate}
-                      </div>
-                    )}
+                    <div className="font-medium text-gray-900">{item.목록명}</div>
                   </td>
                   <td className="py-3 px-4">
-                    <Badge variant="outline">{item.category}</Badge>
+                    <Badge variant="outline">{item.목록타입}</Badge>
                   </td>
-                  <td className="py-3 px-4 text-gray-600">{item.provider}</td>
+                  <td className="py-3 px-4 text-gray-600">{item.담당부서}</td>
                   <td className="py-3 px-4 text-gray-600 flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {item.updateDate}
+                    {item.등록일}
                   </td>
-                  <td className="py-3 px-4 text-center">
-                    <div className="flex items-center justify-center space-x-1">
-                      <Download className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium">{item.downloads.toLocaleString()}</span>
+                  <td className="py-3 px-4 text-gray-600">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {item.마지막수정일}
                     </div>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <div className="flex items-center justify-center space-x-1">
-                      <Eye className="h-4 w-4 text-green-600" />
-                      <span className="font-medium">{item.views.toLocaleString()}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <Badge variant="secondary">{item.format}</Badge>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {getStatusBadge(item.status)}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <Badge className={`${item.dataStatus.bgColor} ${item.dataStatus.color}`}>
-                      {item.dataStatus.label}
-                    </Badge>
                   </td>
                 </tr>
               ))}
@@ -194,42 +116,11 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
           </table>
         </div>
 
-        <div className="flex justify-between items-center mt-6">
-          <div className="text-sm text-gray-600">
-            {startIndex + 1}-{Math.min(endIndex, filteredData.length)} / {filteredData.length}건 표시
+        {filteredData.length === 0 && (
+          <div className="text-center py-8">
+            <div className="text-gray-500">검색 조건에 맞는 데이터가 없습니다.</div>
           </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              이전
-            </Button>
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-            >
-              다음
-            </Button>
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
