@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
@@ -7,6 +8,9 @@ const StatsCards = () => {
   
   // API에서 가져온 totalCount 사용, 로딩 중이거나 데이터가 없으면 기본값 사용
   const totalDatasetCount = apiData?.totalCount || 24892;
+  
+  // API 데이터에서 download_cnt 합산
+  const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
   
   const stats = [
     {
@@ -31,7 +35,7 @@ const StatsCards = () => {
     },
     {
       title: "다운로드",
-      totalValue: "523,567",
+      totalValue: totalDownloadCount.toLocaleString(),
       totalChange: "+25.1%",
       molandValue: "187,432",
       molandChange: "+28.7%",
@@ -87,7 +91,7 @@ const StatsCards = () => {
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">공공데이터포털 전체</div>
               <div className="text-2xl font-bold text-gray-900">
-                {isLoading && index === 0 ? "로딩중..." : stat.totalValue}
+                {isLoading && (index === 0 || index === 2) ? "로딩중..." : stat.totalValue}
               </div>
               <p className="text-xs text-green-600 mt-1">
                 <span className="font-medium">{stat.totalChange}</span> 전월 대비
