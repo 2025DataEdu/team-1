@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Download, FileText, Database, TrendingUp } from "lucide-react";
+import { Eye, Download, FileText, Database, TrendingUp, Users } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
 
 const StatsCards = () => {
@@ -18,77 +18,132 @@ const StatsCards = () => {
       title: "다운로드", 
       value: "187,432",
       icon: Download,
-      color: "text-purple-600"
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      borderColor: "border-purple-200"
     },
     {
       title: "API 호출",
       value: "892K",
       icon: FileText,
-      color: "text-orange-600"
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200"
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* 공공데이터 수 카드 */}
-      <Card className="hover:shadow-lg transition-shadow duration-300">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            공공데이터 수
-          </CardTitle>
-          <div className="p-2 rounded-lg bg-blue-50">
-            <Database className="h-5 w-5 text-blue-600" />
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                <Database className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-bold text-gray-800 mb-1">
+                  공공데이터 수
+                </CardTitle>
+                <p className="text-sm text-gray-500">전체 및 국토교통부 현황</p>
+              </div>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {/* 공공데이터포털 전체 */}
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="text-sm text-gray-600 mb-1">공공데이터포털 전체</div>
-            <div className="text-2xl font-bold text-gray-900">
-              {isLoading ? "로딩중..." : totalDatasetCount.toLocaleString()}
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-sm font-medium text-gray-700">공공데이터포털 전체</span>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                      <span className="text-lg">로딩중...</span>
+                    </div>
+                  ) : (
+                    totalDatasetCount.toLocaleString()
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100">
+                    <TrendingUp className="h-3 w-3 text-green-600" />
+                    <span className="text-xs font-semibold text-green-700">+5.2%</span>
+                  </div>
+                  <span className="text-xs text-gray-500">전월 대비</span>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-green-600 mt-1">
-              <span className="font-medium">+5.2%</span> 전월 대비
-            </p>
           </div>
           
           {/* 국토교통부 */}
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-sm text-blue-700 mb-1 font-medium">국토교통부</div>
-            <div className="text-2xl font-bold text-blue-900">
-              3,247 <span className="text-sm text-blue-600 font-normal">(13.0%)</span>
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <span className="text-sm font-bold text-blue-800">국토교통부</span>
+                  <div className="px-2 py-0.5 rounded-full bg-blue-200 text-xs font-medium text-blue-800">
+                    13.0%
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-blue-900 mb-1">
+                  3,247
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-blue-100">
+                    <TrendingUp className="h-3 w-3 text-blue-600" />
+                    <span className="text-xs font-semibold text-blue-700">+8.1%</span>
+                  </div>
+                  <span className="text-xs text-blue-600">전월 대비</span>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-blue-600 mt-1">
-              <span className="font-medium">+8.1%</span> 전월 대비
-            </p>
           </div>
         </CardContent>
       </Card>
 
       {/* 활용현황 카드 */}
-      <Card className="hover:shadow-lg transition-shadow duration-300">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            활용현황
-          </CardTitle>
-          <div className="p-2 rounded-lg bg-green-50">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-green-50">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-bold text-gray-800 mb-1">
+                  활용현황
+                </CardTitle>
+                <p className="text-sm text-gray-500">국토교통부 데이터 활용도</p>
+              </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="text-sm text-blue-700 mb-3 font-medium">국토교통부</div>
-            <div className="space-y-4">
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span className="text-lg font-bold text-blue-800">국토교통부</span>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
               {utilizationStats.map((stat, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 rounded-md bg-white">
-                      <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-lg bg-white shadow-sm">
+                        <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                      </div>
+                      <span className="font-semibold text-gray-800">{stat.title}</span>
                     </div>
-                    <span className="text-sm font-medium text-blue-900">{stat.title}</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-blue-900">{stat.value}</div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                    </div>
                   </div>
                 </div>
               ))}
