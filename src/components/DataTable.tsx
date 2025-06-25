@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,9 +41,9 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
     status: item.serviceStts === '서비스' ? '서비스중' : item.serviceStts || '알 수 없음'
   })) || [];
 
-  // 국토교통부 데이터만 필터링
+  // 국토교통부 데이터만 필터링 - 데이터셋명이 '국토교통부_' 또는 '국토교통부 '로 시작하는 경우
   const filteredByMinistry = processedData.filter(item => 
-    item.provider.includes('국토교통부') || item.title.includes('국토교통부')
+    item.title.startsWith('국토교통부_') || item.title.startsWith('국토교통부 ')
   );
 
   // 카테고리와 검색어로 필터링
