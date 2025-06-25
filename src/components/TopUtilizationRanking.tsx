@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Download, Database, Building2, TrendingUp } from "lucide-react";
@@ -67,7 +66,9 @@ const TopUtilizationRanking = () => {
                 <h4 className="font-medium text-gray-900 text-sm truncate">{item.name}</h4>
                 <div className="flex items-center space-x-1 mt-1">
                   <Building2 className="h-3 w-3 text-gray-500 flex-shrink-0" />
-                  <span className="text-xs text-gray-600 truncate">{item.institution}</span>
+                  <span className={`text-xs text-gray-600 truncate ${item.institution === '국토교통부' ? 'font-bold' : ''}`}>
+                    {item.institution}
+                  </span>
                 </div>
               </div>
             </div>
