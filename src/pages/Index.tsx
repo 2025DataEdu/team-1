@@ -14,7 +14,6 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [searchTerm, setSearchTerm] = useState("");
   const [showChatBot, setShowChatBot] = useState(false);
-  const [apiKey, setApiKey] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -78,7 +77,7 @@ const Index = () => {
               </Button>
             </div>
             <div className="p-2">
-              <ChatBot apiKey={apiKey} onApiKeyChange={setApiKey} />
+              <ChatBot />
             </div>
           </div>
         )}

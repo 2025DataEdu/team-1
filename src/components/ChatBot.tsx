@@ -13,12 +13,10 @@ interface Message {
   timestamp: Date;
 }
 
-interface ChatBotProps {
-  apiKey: string;
-  onApiKeyChange: (key: string) => void;
-}
+// 하드코딩된 API 키
+const OPENAI_API_KEY = "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";
 
-const ChatBot = ({ apiKey, onApiKeyChange }: ChatBotProps) => {
+const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -29,8 +27,6 @@ const ChatBot = ({ apiKey, onApiKeyChange }: ChatBotProps) => {
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showApiKeyInput, setShowApiKeyInput] = useState(!apiKey);
-  const [tempApiKey, setTempApiKey] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -41,20 +37,8 @@ const ChatBot = ({ apiKey, onApiKeyChange }: ChatBotProps) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleApiKeySubmit = () => {
-    if (tempApiKey.trim()) {
-      onApiKeyChange(tempApiKey.trim());
-      setShowApiKeyInput(false);
-      setTempApiKey("");
-    }
-  };
-
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
-    if (!apiKey) {
-      setShowApiKeyInput(true);
-      return;
-    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -72,7 +56,7 @@ const ChatBot = ({ apiKey, onApiKeyChange }: ChatBotProps) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -147,50 +131,12 @@ const ChatBot = ({ apiKey, onApiKeyChange }: ChatBotProps) => {
     }
   };
 
-  if (showApiKeyInput) {
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Bot className="h-5 w-5" />
-            <span>ChatGPT API 키 설정</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">
-            챗봇을 사용하려면 OpenAI API 키를 입력해주세요.
-          </p>
-          <Input
-            type="password"
-            placeholder="sk-..."
-            value={tempApiKey}
-            onChange={(e) => setTempApiKey(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleApiKeySubmit()}
-          />
-          <Button onClick={handleApiKeySubmit} className="w-full">
-            API 키 설정
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="flex flex-col h-[600px]">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="h-5 w-5" />
-            <span>AI 어시스턴트</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowApiKeyInput(true)}
-            className="text-xs"
-          >
-            API 키 변경
-          </Button>
+        <CardTitle className="flex items-center space-x-2">
+          <MessageCircle className="h-5 w-5" />
+          <span>AI 어시스턴트</span>
         </CardTitle>
       </CardHeader>
       
