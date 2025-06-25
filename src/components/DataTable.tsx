@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -133,6 +132,9 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.provider.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
+  }).sort((a, b) => {
+    // Sort by updateDate in descending order (most recent first)
+    return new Date(b.updateDate).getTime() - new Date(a.updateDate).getTime();
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
