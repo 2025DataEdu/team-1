@@ -1,6 +1,8 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Download, FileText, Database, TrendingUp, Users } from "lucide-react";
+import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
+import { getStatusSummary } from "@/utils/dataStatusUtils";
 
 const StatsCards = () => {
   const { data: apiData, isLoading } = usePublicData();
@@ -10,6 +12,9 @@ const StatsCards = () => {
   
   // API 데이터에서 download_cnt 합산
   const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
+
+  // 데이터 상태 현황 분석
+  const statusSummary = apiData?.data ? getStatusSummary(apiData.data) : { active: 0, upcoming: 0, overdue: 0, unknown: 0 };
 
   // 활용현황 데이터 ('활용 건수' 제거)
   const utilizationStats = [
@@ -32,7 +37,7 @@ const StatsCards = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* 공공데이터 수 카드 */}
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
         <CardHeader className="pb-4">
@@ -141,6 +146,61 @@ const StatsCards = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 데이터 상태 현황 카드 - 새로 추가 */}
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                <AlertTriangle className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-bold text-gray-800 mb-1">
+                  갱신 현황
+                </CardTitle>
+                <p className="text-sm text-gray-500">등록일 기준 데이터 상태</p>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-3">
+            {/* 서비스중 */}
+            <div className="p-3 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="font-medium text-green-800">서비스중</span>
+                </div>
+                <div className="text-lg font-bold text-green-900">{statusSummary.active}</div>
+              </div>
+            </div>
+            
+            {/* 갱신 예정 */}
+            <div className="p-3 rounded-xl bg-orange-50 border border-orange-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                  <span className="font-medium text-orange-800">갱신 예정</span>
+                </div>
+                <div className="text-lg font-bold text-orange-900">{statusSummary.upcoming}</div>
+              </div>
+            </div>
+            
+            {/* 갱신 필요 */}
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <span className="font-medium text-red-800">갱신 필요</span>
+                </div>
+                <div className="text-lg font-bold text-red-900">{statusSummary.overdue}</div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

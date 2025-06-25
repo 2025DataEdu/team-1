@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, Calendar, ExternalLink } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
+import { getDataStatus } from "@/utils/dataStatusUtils";
 
 interface DataTableProps {
   selectedCategory: string;
@@ -20,6 +22,8 @@ interface ProcessedDataItem {
   views: number;
   format: string;
   status: string;
+  dataStatus: ReturnType<typeof getDataStatus>;
+  nextRegistrationDate: string;
 }
 
 const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
@@ -29,17 +33,25 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   const { data: apiData, isLoading, error } = usePublicData();
 
   // API 데이터를 UI에 맞게 변환
-  const processedData: ProcessedDataItem[] = apiData?.data?.map((item) => ({
-    id: item.datasetId || Math.random().toString(),
-    title: item.datasetNm || '데이터셋명 없음',
-    category: item.categoryNm || '기타',
-    provider: item.providerNm || '제공기관 없음',
-    updateDate: item.registDt ? item.registDt.split(' ')[0] : '날짜 없음',
-    downloads: item.downloadCnt || 0,
-    views: item.inquiryCnt || 0,
-    format: item.dataFormat || 'JSON',
-    status: item.serviceStts === '서비스' ? '서비스중' : item.serviceStts || '알 수 없음'
-  })) || [];
+  const processedData: ProcessedDataItem[] = apiData?.data?.map((item) => {
+    const createdAt = item.registDt || item.created_at || '';
+    const nextRegDate = item.next_registration_date || '없음';
+    const dataStatus = getDataStatus(createdAt, nextRegDate);
+    
+    return {
+      id: item.datasetId || Math.random().toString(),
+      title: item.datasetNm || '데이터셋명 없음',
+      category: item.categoryNm || '기타',
+      provider: item.providerNm || '제공기관 없음',
+      updateDate: createdAt ? createdAt.split(' ')[0] : '날짜 없음',
+      downloads: item.downloadCnt || 0,
+      views: item.inquiryCnt || 0,
+      format: item.dataFormat || 'JSON',
+      status: item.serviceStts === '서비스' ? '서비스중' : item.serviceStts || '알 수 없음',
+      dataStatus,
+      nextRegistrationDate: nextRegDate
+    };
+  }) || [];
 
   // 국토교통부 데이터만 필터링 - 데이터셋명이 '국토교통부_' 또는 '국토교통부 '로 시작하는 경우
   const filteredByMinistry = processedData.filter(item => 
@@ -131,6 +143,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                 <th className="text-center py-3 px-4 font-medium text-gray-700">조회수</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-700">형식</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-700">상태</th>
+                <th className="text-center py-3 px-4 font-medium text-gray-700">갱신상태</th>
               </tr>
             </thead>
             <tbody>
@@ -138,6 +151,11 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                 <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4">
                     <div className="font-medium text-gray-900">{item.title}</div>
+                    {item.nextRegistrationDate && item.nextRegistrationDate !== '없음' && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        차기갱신: {item.nextRegistrationDate}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <Badge variant="outline">{item.category}</Badge>
@@ -164,6 +182,11 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                   </td>
                   <td className="py-3 px-4 text-center">
                     {getStatusBadge(item.status)}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <Badge className={`${item.dataStatus.bgColor} ${item.dataStatus.color}`}>
+                      {item.dataStatus.label}
+                    </Badge>
                   </td>
                 </tr>
               ))}
