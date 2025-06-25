@@ -125,24 +125,22 @@ const StatsCards = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
-            <div className="grid grid-cols-1 gap-4">
-              {utilizationStats.map((stat, index) => (
-                <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
-                  <div className="flex items-center justify-between h-full">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-lg bg-white shadow-sm">
-                        <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                      </div>
-                      <span className="font-semibold text-gray-800">{stat.title}</span>
+          <div className="grid grid-cols-1 gap-4">
+            {utilizationStats.map((stat, index) => (
+              <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
+                <div className="flex items-center justify-between h-full">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-lg bg-white shadow-sm">
+                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                    </div>
+                    <span className="font-semibold text-gray-800">{stat.title}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
