@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,111 +17,133 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   const mockData = [
     {
       id: 1,
-      title: "실시간 교통정보 (TOPIS)",
-      category: "교통정보",
-      provider: "한국도로공사",
-      updateDate: "2024-06-25",
-      downloads: 15420,
-      views: 45892,
+      title: "스마트시티 통합 플랫폼 데이터",
+      category: "스마트시티",
+      provider: "국토교통부",
+      updateDate: "2025-06-25",
+      downloads: 28450,
+      views: 67892,
       format: "JSON",
       status: "서비스중"
     },
     {
       id: 2,
+      title: "자율주행차 인프라 정보",
+      category: "교통정보",
+      provider: "한국도로공사",
+      updateDate: "2025-06-24",
+      downloads: 23680,
+      views: 58421,
+      format: "JSON",
+      status: "서비스중"
+    },
+    {
+      id: 3,
+      title: "건설현장 IoT 센서 데이터",
+      category: "건설",
+      provider: "한국건설기술연구원",
+      updateDate: "2025-06-23",
+      downloads: 19250,
+      views: 45832,
+      format: "JSON",
+      status: "서비스중"
+    },
+    {
+      id: 4,
+      title: "친환경 건축물 인증 정보",
+      category: "건설",
+      provider: "한국건설기술연구원",
+      updateDate: "2025-06-22",
+      downloads: 17830,
+      views: 42156,
+      format: "XML",
+      status: "서비스중"
+    },
+    {
+      id: 5,
+      title: "실시간 교통정보 (TOPIS)",
+      category: "교통정보",
+      provider: "한국도로공사",
+      updateDate: "2025-06-21",
+      downloads: 16420,
+      views: 45892,
+      format: "JSON",
+      status: "서비스중"
+    },
+    {
+      id: 6,
       title: "부동산 실거래가 정보",
       category: "부동산",
       provider: "국토교통부",
-      updateDate: "2024-06-24",
-      downloads: 12380,
+      updateDate: "2025-06-20",
+      downloads: 15380,
       views: 38421,
       format: "XML",
       status: "서비스중"
     },
     {
-      id: 3,
+      id: 7,
+      title: "도시철도 혼잡도 정보",
+      category: "철도",
+      provider: "한국철도공사",
+      updateDate: "2025-06-19",
+      downloads: 14890,
+      views: 35283,
+      format: "JSON",
+      status: "서비스중"
+    },
+    {
+      id: 8,
+      title: "항공기 운항정보",
+      category: "항공",
+      provider: "한국공항공사",
+      updateDate: "2025-06-18",
+      downloads: 12630,
+      views: 31456,
+      format: "XML",
+      status: "서비스중"
+    },
+    {
+      id: 9,
+      title: "고속철도 운행정보",
+      category: "철도",
+      provider: "한국철도공사",
+      updateDate: "2025-06-17",
+      downloads: 11890,
+      views: 29283,
+      format: "JSON",
+      status: "서비스중"
+    },
+    {
+      id: 10,
+      title: "항만 스마트 물류 데이터",
+      category: "해운",
+      provider: "해양수산부",
+      updateDate: "2025-06-16",
+      downloads: 10210,
+      views: 26592,
+      format: "CSV",
+      status: "서비스중"
+    },
+    {
+      id: 11,
       title: "건축물 대장 정보",
       category: "건설",
       provider: "건축도시공간연구소",
-      updateDate: "2024-06-23",
+      updateDate: "2024-12-23",
       downloads: 8950,
       views: 27835,
       format: "JSON",
       status: "서비스중"
     },
     {
-      id: 4,
-      title: "항공기 운항정보",
-      category: "항공",
-      provider: "한국공항공사",
-      updateDate: "2024-06-25",
-      downloads: 7630,
-      views: 21456,
-      format: "XML",
-      status: "서비스중"
-    },
-    {
-      id: 5,
-      title: "고속철도 운행정보",
-      category: "철도",
-      provider: "한국철도공사",
-      updateDate: "2024-06-24",
-      downloads: 6890,
-      views: 19283,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 6,
-      title: "항만 물동량 통계",
-      category: "해운",
-      provider: "해양수산부",
-      updateDate: "2024-06-22",
-      downloads: 5210,
-      views: 16592,
-      format: "CSV",
-      status: "서비스중"
-    },
-    {
-      id: 7,
+      id: 12,
       title: "교통사고 통계",
       category: "교통정보",
       provider: "도로교통공단",
-      updateDate: "2024-06-21",
-      downloads: 4830,
-      views: 15347,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 8,
-      title: "건설공사 정보",
-      category: "건설",
-      provider: "대한건설협회",
-      updateDate: "2024-06-20",
-      downloads: 4250,
-      views: 13892,
-      format: "XML",
-      status: "서비스중"
-    },
-    {
-      id: 9,
-      title: "지적도 정보",
-      category: "부동산",
-      provider: "국토지리정보원",
-      updateDate: "2024-06-19",
-      downloads: 3960,
-      views: 12534,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 10,
-      title: "대중교통 노선정보",
-      category: "교통정보",
-      provider: "교통안전공단",
-      updateDate: "2024-06-18",
-      downloads: 3680,
-      views: 11275,
+      updateDate: "2024-12-21",
+      downloads: 7830,
+      views: 25347,
       format: "JSON",
       status: "서비스중"
     }
