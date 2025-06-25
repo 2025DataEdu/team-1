@@ -1,155 +1,54 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Download, Eye, Calendar, Database, ExternalLink } from "lucide-react";
+import { Download, Eye, Calendar, ExternalLink } from "lucide-react";
+import { usePublicData } from "@/hooks/usePublicDataAPI";
 
 interface DataTableProps {
   selectedCategory: string;
   searchTerm: string;
 }
 
+interface ProcessedDataItem {
+  id: string;
+  title: string;
+  category: string;
+  provider: string;
+  updateDate: string;
+  downloads: number;
+  views: number;
+  format: string;
+  status: string;
+}
+
 const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  
+  const { data: apiData, isLoading, error } = usePublicData();
 
-  const mockData = [
-    {
-      id: 1,
-      title: "스마트시티 통합 플랫폼 데이터",
-      category: "스마트시티",
-      provider: "국토교통부",
-      updateDate: "2025-06-25",
-      downloads: 28450,
-      views: 67892,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 2,
-      title: "자율주행차 인프라 정보",
-      category: "교통정보",
-      provider: "한국도로공사",
-      updateDate: "2025-06-24",
-      downloads: 23680,
-      views: 58421,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 3,
-      title: "건설현장 IoT 센서 데이터",
-      category: "건설",
-      provider: "한국건설기술연구원",
-      updateDate: "2025-06-23",
-      downloads: 19250,
-      views: 45832,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 4,
-      title: "친환경 건축물 인증 정보",
-      category: "건설",
-      provider: "한국건설기술연구원",
-      updateDate: "2025-06-22",
-      downloads: 17830,
-      views: 42156,
-      format: "XML",
-      status: "서비스중"
-    },
-    {
-      id: 5,
-      title: "실시간 교통정보 (TOPIS)",
-      category: "교통정보",
-      provider: "한국도로공사",
-      updateDate: "2025-06-21",
-      downloads: 16420,
-      views: 45892,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 6,
-      title: "부동산 실거래가 정보",
-      category: "부동산",
-      provider: "국토교통부",
-      updateDate: "2025-06-20",
-      downloads: 15380,
-      views: 38421,
-      format: "XML",
-      status: "서비스중"
-    },
-    {
-      id: 7,
-      title: "도시철도 혼잡도 정보",
-      category: "철도",
-      provider: "한국철도공사",
-      updateDate: "2025-06-19",
-      downloads: 14890,
-      views: 35283,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 8,
-      title: "항공기 운항정보",
-      category: "항공",
-      provider: "한국공항공사",
-      updateDate: "2025-06-18",
-      downloads: 12630,
-      views: 31456,
-      format: "XML",
-      status: "서비스중"
-    },
-    {
-      id: 9,
-      title: "고속철도 운행정보",
-      category: "철도",
-      provider: "한국철도공사",
-      updateDate: "2025-06-17",
-      downloads: 11890,
-      views: 29283,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 10,
-      title: "항만 스마트 물류 데이터",
-      category: "해운",
-      provider: "해양수산부",
-      updateDate: "2025-06-16",
-      downloads: 10210,
-      views: 26592,
-      format: "CSV",
-      status: "서비스중"
-    },
-    {
-      id: 11,
-      title: "건축물 대장 정보",
-      category: "건설",
-      provider: "건축도시공간연구소",
-      updateDate: "2024-12-23",
-      downloads: 8950,
-      views: 27835,
-      format: "JSON",
-      status: "서비스중"
-    },
-    {
-      id: 12,
-      title: "교통사고 통계",
-      category: "교통정보",
-      provider: "도로교통공단",
-      updateDate: "2024-12-21",
-      downloads: 7830,
-      views: 25347,
-      format: "JSON",
-      status: "서비스중"
-    }
-  ];
+  // API 데이터를 UI에 맞게 변환
+  const processedData: ProcessedDataItem[] = apiData?.data?.map((item) => ({
+    id: item.datasetId || Math.random().toString(),
+    title: item.datasetNm || '데이터셋명 없음',
+    category: item.categoryNm || '기타',
+    provider: item.providerNm || '제공기관 없음',
+    updateDate: item.registDt ? item.registDt.split(' ')[0] : '날짜 없음',
+    downloads: item.downloadCnt || 0,
+    views: item.inquiryCnt || 0,
+    format: item.dataFormat || 'JSON',
+    status: item.serviceStts === '서비스' ? '서비스중' : item.serviceStts || '알 수 없음'
+  })) || [];
 
-  const filteredData = mockData.filter(item => {
+  // 국토교통부 데이터만 필터링
+  const filteredByMinistry = processedData.filter(item => 
+    item.provider.includes('국토교통부') || item.title.includes('국토교통부')
+  );
+
+  // 카테고리와 검색어로 필터링
+  const filteredData = filteredByMinistry.filter(item => {
     const matchesCategory = selectedCategory === "전체" || item.category === selectedCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.provider.toLowerCase().includes(searchTerm.toLowerCase());
@@ -177,12 +76,36 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center h-32">
+            <div className="text-lg text-gray-600">데이터를 불러오는 중...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center h-32">
+            <div className="text-lg text-red-600">데이터를 불러오는데 실패했습니다.</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-semibold text-gray-800">
-            최신 등록 데이터셋 ({filteredData.length.toLocaleString()}건)
+            국토교통부 최신 등록 데이터셋 ({filteredData.length.toLocaleString()}건)
           </CardTitle>
           <div className="flex space-x-2">
             <Button variant="outline" size="sm">
@@ -204,7 +127,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                 <th className="text-left py-3 px-4 font-medium text-gray-700">데이터셋명</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">카테고리</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">제공기관</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">최종업데이트</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">등록일</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-700">다운로드</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-700">조회수</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-700">형식</th>
