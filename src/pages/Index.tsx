@@ -5,6 +5,7 @@ import StatsCards from "@/components/StatsCards";
 import DataCharts from "@/components/DataCharts";
 import DataTable from "@/components/DataTable";
 import FilterPanel from "@/components/FilterPanel";
+import TopUtilizationRanking from "@/components/TopUtilizationRanking";
 import ChatBot from "@/components/ChatBot";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, X } from "lucide-react";
@@ -30,6 +31,8 @@ const Index = () => {
         </div>
 
         <StatsCards />
+        
+        <TopUtilizationRanking />
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1">
