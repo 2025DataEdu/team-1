@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -160,7 +161,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-semibold text-gray-800">
-            데이터셋 목록 ({filteredData.length.toLocaleString()}건)
+            최신 등록 데이터셋 ({filteredData.length.toLocaleString()}건)
           </CardTitle>
           <div className="flex space-x-2">
             <Button variant="outline" size="sm">
