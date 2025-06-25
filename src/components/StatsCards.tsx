@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database, TrendingUp, Users } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
@@ -127,10 +126,6 @@ const StatsCards = () => {
         </CardHeader>
         <CardContent>
           <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-lg font-bold text-blue-800">국토교통부</span>
-            </div>
             <div className="grid grid-cols-1 gap-4">
               {utilizationStats.map((stat, index) => (
                 <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
