@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 
 interface PublicDataItem {
@@ -12,6 +11,8 @@ interface PublicDataItem {
   registDt: string;
   serviceStts: string;
   datasetId: string;
+  created_at?: string;
+  next_registration_date?: string;
 }
 
 interface PublicDataResponse {
