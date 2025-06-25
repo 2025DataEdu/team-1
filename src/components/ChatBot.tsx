@@ -3,23 +3,30 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Send } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { MessageCircle, Send, Bot, User } from "lucide-react";
 
 // 하드코딩된 API 키
 const OPENAI_API_KEY = "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";
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 const ChatBot = () => {
   const [inputMessage, setInputMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
-    setIsLoading(true);
     const userQuestion = inputMessage;
     setInputMessage("");
+    
+    // 사용자 메시지 추가
+    setMessages(prev => [...prev, { role: 'user', content: userQuestion }]);
+    setIsLoading(true);
 
     try {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -74,19 +81,15 @@ const ChatBot = () => {
       const data = await response.json();
       const answer = data.choices[0].message.content;
       
-      toast({
-        title: "AI 어시스턴트 답변",
-        description: answer,
-        duration: 10000,
-      });
+      // AI 답변 추가
+      setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
 
     } catch (error) {
       console.error("ChatGPT API 오류:", error);
-      toast({
-        title: "오류 발생",
-        description: "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-        variant: "destructive",
-      });
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' 
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +105,8 @@ const ChatBot = () => {
   return (
     <Card className="bg-white shadow-md">
       <CardContent className="p-4">
-        <div className="flex items-center space-x-3">
+        {/* 입력창 */}
+        <div className="flex items-center space-x-3 mb-4">
           <MessageCircle className="h-5 w-5 text-blue-600 flex-shrink-0" />
           <div className="flex-1 flex space-x-2">
             <Input
@@ -123,14 +127,50 @@ const ChatBot = () => {
             </Button>
           </div>
         </div>
+
+        {/* 로딩 상태 */}
         {isLoading && (
-          <div className="flex items-center space-x-2 mt-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-2 mb-4 text-sm text-gray-600">
             <div className="flex space-x-1">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
             </div>
             <span>AI가 답변을 준비 중입니다...</span>
+          </div>
+        )}
+
+        {/* 메시지 목록 */}
+        {messages.length > 0 && (
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex items-start space-x-3 ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                {message.role === 'assistant' && (
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Bot className="h-4 w-4 text-blue-600" />
+                  </div>
+                )}
+                <div
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    message.role === 'user'
+                      ? 'bg-blue-600 text-white ml-auto'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                </div>
+                {message.role === 'user' && (
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
