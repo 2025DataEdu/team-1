@@ -36,6 +36,25 @@ const StatsCards = () => {
     }
   ];
 
+  const calculatePercentage = (molandValue: string, totalValue: string): string => {
+    // 숫자 추출 함수
+    const parseValue = (value: string): number => {
+      const numStr = value.replace(/,/g, '');
+      if (numStr.includes('M')) {
+        return parseFloat(numStr.replace('M', '')) * 1000000;
+      } else if (numStr.includes('K')) {
+        return parseFloat(numStr.replace('K', '')) * 1000;
+      }
+      return parseFloat(numStr);
+    };
+
+    const molandNum = parseValue(molandValue);
+    const totalNum = parseValue(totalValue);
+    const percentage = (molandNum / totalNum * 100).toFixed(1);
+    
+    return `${percentage}%`;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {stats.map((stat, index) => (
@@ -61,7 +80,9 @@ const StatsCards = () => {
             {/* 국토교통부 */}
             <div className="bg-blue-50 p-3 rounded-lg">
               <div className="text-sm text-blue-700 mb-1 font-medium">국토교통부</div>
-              <div className="text-2xl font-bold text-blue-900">{stat.molandValue}</div>
+              <div className="text-2xl font-bold text-blue-900">
+                {stat.molandValue} <span className="text-sm text-blue-600 font-normal">({calculatePercentage(stat.molandValue, stat.totalValue)})</span>
+              </div>
               <p className="text-xs text-blue-600 mt-1">
                 <span className="font-medium">{stat.molandChange}</span> 전월 대비
               </p>
