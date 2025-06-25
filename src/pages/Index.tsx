@@ -5,10 +5,15 @@ import StatsCards from "@/components/StatsCards";
 import DataCharts from "@/components/DataCharts";
 import DataTable from "@/components/DataTable";
 import FilterPanel from "@/components/FilterPanel";
+import ChatBot from "@/components/ChatBot";
+import { Button } from "@/components/ui/button";
+import { MessageCircle, X } from "lucide-react";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showChatBot, setShowChatBot] = useState(false);
+  const [apiKey, setApiKey] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -44,6 +49,36 @@ const Index = () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* 챗봇 토글 버튼 */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {!showChatBot ? (
+          <Button
+            onClick={() => setShowChatBot(true)}
+            className="rounded-full w-14 h-14 bg-blue-600 hover:bg-blue-700 shadow-lg"
+            size="icon"
+          >
+            <MessageCircle className="h-6 w-6" />
+          </Button>
+        ) : (
+          <div className="bg-white rounded-lg shadow-2xl border">
+            <div className="flex items-center justify-between p-2 border-b">
+              <span className="text-sm font-medium text-gray-700">AI 어시스턴트</span>
+              <Button
+                onClick={() => setShowChatBot(false)}
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="p-2">
+              <ChatBot apiKey={apiKey} onApiKeyChange={setApiKey} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
