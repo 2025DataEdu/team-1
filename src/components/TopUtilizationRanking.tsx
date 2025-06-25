@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, Database, Building2, TrendingUp } from "lucide-react";
 
 const TopUtilizationRanking = () => {
@@ -47,38 +46,43 @@ const TopUtilizationRanking = () => {
     return usage.toLocaleString();
   };
 
-  const DataList = ({ data, type }: { data: typeof apiData, type: string }) => (
-    <div className="space-y-3">
-      {data.map((item) => (
-        <div key={item.rank} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              {getRankBadge(item.rank)}
+  const DataList = ({ data, type, title }: { data: typeof apiData, type: string, title: string }) => (
+    <div className="space-y-4">
+      <div className="flex items-center space-x-2 mb-4">
+        {type === 'api' ? (
+          <Database className="h-5 w-5 text-blue-600" />
+        ) : (
+          <Download className="h-5 w-5 text-green-600" />
+        )}
+        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+      </div>
+      <div className="space-y-2">
+        {data.map((item) => (
+          <div key={item.rank} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                {getRankBadge(item.rank)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-gray-900 text-sm truncate">{item.name}</h4>
+                <div className="flex items-center space-x-1 mt-1">
+                  <Building2 className="h-3 w-3 text-gray-500 flex-shrink-0" />
+                  <span className="text-xs text-gray-600 truncate">{item.institution}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900">{item.name}</h4>
-              <div className="flex items-center space-x-2 mt-1">
-                <Building2 className="h-3 w-3 text-gray-500" />
-                <span className="text-sm text-gray-600">{item.institution}</span>
+            <div className="text-right flex-shrink-0">
+              <div className="flex items-center space-x-2">
+                <span className="font-bold text-sm">{formatUsage(item.usage)}</span>
+              </div>
+              <div className="flex items-center space-x-1 mt-1">
+                <TrendingUp className="h-3 w-3 text-green-600" />
+                <span className="text-xs text-green-600 font-medium">{item.change}</span>
               </div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="flex items-center space-x-2">
-              {type === 'api' ? (
-                <Database className="h-4 w-4 text-blue-600" />
-              ) : (
-                <Download className="h-4 w-4 text-green-600" />
-              )}
-              <span className="font-bold text-lg">{formatUsage(item.usage)}</span>
-            </div>
-            <div className="flex items-center space-x-1 mt-1">
-              <TrendingUp className="h-3 w-3 text-green-600" />
-              <span className="text-sm text-green-600 font-medium">{item.change}</span>
-            </div>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 
@@ -92,34 +96,10 @@ const TopUtilizationRanking = () => {
         <p className="text-sm text-gray-600">API 호출 및 파일 다운로드 기준 상위 10개 데이터셋</p>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="api" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="api" className="flex items-center space-x-2">
-              <Database className="h-4 w-4" />
-              <span>API 활용도</span>
-            </TabsTrigger>
-            <TabsTrigger value="file" className="flex items-center space-x-2">
-              <Download className="h-4 w-4" />
-              <span>파일 다운로드</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="api" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">API 호출 기준 TOP 10</h3>
-              <p className="text-sm text-gray-600">실시간 데이터 접근 및 API 호출 횟수 기준</p>
-            </div>
-            <DataList data={apiData} type="api" />
-          </TabsContent>
-          
-          <TabsContent value="file" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">파일 다운로드 기준 TOP 10</h3>
-              <p className="text-sm text-gray-600">데이터 파일 다운로드 횟수 기준</p>
-            </div>
-            <DataList data={fileData} type="file" />
-          </TabsContent>
-        </Tabs>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <DataList data={apiData} type="api" title="API 호출 기준 TOP 10" />
+          <DataList data={fileData} type="file" title="파일 다운로드 기준 TOP 10" />
+        </div>
       </CardContent>
     </Card>
   );
