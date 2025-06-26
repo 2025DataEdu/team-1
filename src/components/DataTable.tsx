@@ -121,63 +121,64 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
             )}
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            <div className="rounded-lg border border-gray-200 overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="font-bold text-gray-700 py-4 px-6 text-center w-[35%]">목록명</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px]">목록타입</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px]">분류체계</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[19%] min-w-[120px]">등록일</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[20%] min-w-[130px]">마지막수정일</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {processedData.map((item, index) => (
-                    <TableRow 
-                      key={item.id} 
-                      className={`hover:bg-blue-50 transition-colors border-b border-gray-100 ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
-                      }`}
-                    >
-                      <TableCell className="font-medium py-5 px-6 w-[35%]">
-                        <div className="truncate" title={item.목록명}>
-                          {item.목록명}
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-5 px-4 w-[13%] min-w-[100px]">
-                        <Badge variant="outline" className="text-xs whitespace-nowrap">
-                          {item.목록타입}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-5 px-4 w-[13%] min-w-[100px]">
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs whitespace-nowrap ${
-                            item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
-                            item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
-                            item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
-                            item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
-                            item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {item.분류체계}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 py-5 px-4 w-[19%] min-w-[120px] text-center whitespace-nowrap">
-                        {item.등록일}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 py-5 px-4 w-[20%] min-w-[130px] text-center whitespace-nowrap">
-                        {item.마지막수정일}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+          <div className="h-full flex flex-col rounded-lg border border-gray-200 overflow-hidden">
+            {/* 고정 헤더 */}
+            <div className="flex-shrink-0 bg-gray-50 border-b border-gray-200">
+              <div className="flex">
+                <div className="font-bold text-gray-700 py-4 px-6 text-center w-[35%] border-r border-gray-200">목록명</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px] border-r border-gray-200">목록타입</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px] border-r border-gray-200">분류체계</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[19%] min-w-[120px] border-r border-gray-200">등록일</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[20%] min-w-[130px]">마지막수정일</div>
+              </div>
             </div>
-          </ScrollArea>
+            
+            {/* 스크롤 가능한 본문 */}
+            <ScrollArea className="flex-1">
+              <div className="divide-y divide-gray-100">
+                {processedData.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className={`flex hover:bg-blue-50 transition-colors ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                    }`}
+                  >
+                    <div className="font-medium py-5 px-6 w-[35%] border-r border-gray-100">
+                      <div className="truncate" title={item.목록명}>
+                        {item.목록명}
+                      </div>
+                    </div>
+                    <div className="py-5 px-4 w-[13%] min-w-[100px] border-r border-gray-100 flex items-center justify-center">
+                      <Badge variant="outline" className="text-xs whitespace-nowrap">
+                        {item.목록타입}
+                      </Badge>
+                    </div>
+                    <div className="py-5 px-4 w-[13%] min-w-[100px] border-r border-gray-100 flex items-center justify-center">
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs whitespace-nowrap ${
+                          item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
+                          item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
+                          item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
+                          item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
+                          item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {item.분류체계}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-gray-600 py-5 px-4 w-[19%] min-w-[120px] text-center whitespace-nowrap border-r border-gray-100 flex items-center justify-center">
+                      {item.등록일}
+                    </div>
+                    <div className="text-sm text-gray-600 py-5 px-4 w-[20%] min-w-[130px] text-center whitespace-nowrap flex items-center justify-center">
+                      {item.마지막수정일}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         )}
       </CardContent>
     </Card>
