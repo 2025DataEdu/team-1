@@ -19,6 +19,7 @@ export const useFilesDownload = () => {
       }
       
       console.log('files_downlload 총 레코드 수:', count);
+      console.log('반환할 데이터:', { totalRecords: count || 0, totalDownloads: count || 0 });
       
       return {
         totalRecords: count || 0,

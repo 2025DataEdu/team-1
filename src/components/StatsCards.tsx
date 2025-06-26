@@ -37,6 +37,11 @@ const StatsCards = () => {
   // files_download 테이블에서 가져온 전체 레코드 수를 다운로드 수로 사용
   const totalDownloadCount = filesDownloadData?.totalRecords || 0;
 
+  // 디버깅용 로그 추가
+  console.log('StatsCards - filesDownloadData:', filesDownloadData);
+  console.log('StatsCards - totalDownloadCount:', totalDownloadCount);
+  console.log('StatsCards - isFilesDownloadLoading:', isFilesDownloadLoading);
+
   // API Call 데이터에서 실제 호출 건수 계산
   const totalApiCallCount = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
 
