@@ -41,7 +41,7 @@ const FilterPanel = ({
       <CardContent className="space-y-4">
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-3">분류체계</h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="space-y-2">
             {categories.map((category) => (
               <Button
                 key={category.name}
