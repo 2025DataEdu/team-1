@@ -6,55 +6,35 @@ export const useYearlyTrends = () => {
   return useQuery({
     queryKey: ['yearlyTrends'],
     queryFn: async () => {
-      console.log('=== API 호출 연간 추이 데이터 조회 시작 ===');
+      console.log('=== monthly_stats 테이블에서 연간 추이 데이터 조회 시작 ===');
       
       try {
-        // api_call 테이블에서 연도별 API 호출 수 집계
-        const { data: apiData, error: apiError } = await supabase
-          .from('api_call')
-          .select('통계일자, 호출건수')
-          .not('통계일자', 'is', null)
-          .not('호출건수', 'is', null);
+        // monthly_stats 테이블에서 연도별 API 호출 수 집계
+        const { data: monthlyData, error: monthlyError } = await supabase
+          .from('monthly_stats')
+          .select('year, total_api_calls')
+          .not('year', 'is', null)
+          .not('total_api_calls', 'is', null)
+          .order('year');
 
-        if (apiError) {
-          console.error('api_call 조회 오류:', apiError);
-          throw apiError;
+        if (monthlyError) {
+          console.error('monthly_stats 조회 오류:', monthlyError);
+          throw monthlyError;
         }
 
-        console.log('api_call 원본 데이터 샘플:', apiData?.slice(0, 5));
-        console.log('api_call 총 레코드 수:', apiData?.length || 0);
+        console.log('monthly_stats 원본 데이터:', monthlyData);
+        console.log('monthly_stats 총 레코드 수:', monthlyData?.length || 0);
 
         // 연도별 API 호출 수 집계
         const apiCallByYear = new Map<number, number>();
-        if (apiData && apiData.length > 0) {
-          apiData.forEach((item: any) => {
-            if (item.통계일자 && item.호출건수) {
-              let year: number;
-              const dateValue = item.통계일자;
-              
-              // 날짜 형식 처리
-              if (typeof dateValue === 'string') {
-                if (dateValue.includes('-')) {
-                  year = parseInt(dateValue.split('-')[0]);
-                } else if (dateValue.length >= 4) {
-                  year = parseInt(dateValue.substring(0, 4));
-                } else {
-                  return;
-                }
-              } else if (dateValue instanceof Date) {
-                year = dateValue.getFullYear();
-              } else {
-                const date = new Date(dateValue);
-                year = date.getFullYear();
-              }
-              
-              if (year >= 2020 && year <= 2024 && !isNaN(year)) {
-                const callCount = parseInt(String(item.호출건수)) || 0;
-                if (callCount > 0) {
-                  const currentTotal = apiCallByYear.get(year) || 0;
-                  apiCallByYear.set(year, currentTotal + callCount);
-                }
-              }
+        if (monthlyData && monthlyData.length > 0) {
+          monthlyData.forEach((item: any) => {
+            const year = item.year;
+            const apiCalls = item.total_api_calls || 0;
+            
+            if (year >= 2020 && year <= 2024 && apiCalls > 0) {
+              const currentTotal = apiCallByYear.get(year) || 0;
+              apiCallByYear.set(year, currentTotal + apiCalls);
             }
           });
         }
@@ -66,7 +46,7 @@ export const useYearlyTrends = () => {
           console.log(`${year}년: API 호출 ${apiCalls.toLocaleString()}건`);
         }
 
-        // 2020-2024년 연도별 데이터 생성 (API 호출만)
+        // 2020-2024년 연도별 데이터 생성
         const yearlyData = [];
         for (let year = 2020; year <= 2024; year++) {
           const apiCalls = apiCallByYear.get(year) || 0;
