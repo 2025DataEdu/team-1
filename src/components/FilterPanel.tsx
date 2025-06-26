@@ -31,8 +31,10 @@ const FilterPanel = ({
     );
   }
 
-  // 상위 8개 카테고리만 표시 (전체 포함)
-  const displayCategories = categories.slice(0, 9); // 전체 + 상위 8개
+  // 상위 8개 카테고리 (전체 포함하여 총 9개)
+  const topCategories = categories.slice(0, 9);
+  // 나머지 카테고리들
+  const remainingCategories = categories.slice(9);
 
   return (
     <Card className="sticky top-6">
@@ -45,23 +47,44 @@ const FilterPanel = ({
       <CardContent className="space-y-4">
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-3">분류체계</h3>
-          <ScrollArea className="h-64">
-            <div className="space-y-2 pr-4">
-              {displayCategories.map((category) => (
-                <Button
-                  key={category.name}
-                  variant={selectedCategory === category.name ? "default" : "ghost"}
-                  className="w-full justify-between text-left"
-                  onClick={() => setSelectedCategory(category.name)}
-                >
-                  <span className="truncate">{category.name}</span>
-                  <Badge variant="secondary" className="ml-2 flex-shrink-0">
-                    {category.count.toLocaleString()}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
+          
+          {/* 상위 8개 카테고리 - 스크롤 없이 표시 */}
+          <div className="space-y-2 mb-2">
+            {topCategories.map((category) => (
+              <Button
+                key={category.name}
+                variant={selectedCategory === category.name ? "default" : "ghost"}
+                className="w-full justify-between text-left"
+                onClick={() => setSelectedCategory(category.name)}
+              >
+                <span className="truncate">{category.name}</span>
+                <Badge variant="secondary" className="ml-2 flex-shrink-0">
+                  {category.count.toLocaleString()}
+                </Badge>
+              </Button>
+            ))}
+          </div>
+
+          {/* 나머지 카테고리들 - 스크롤 영역 */}
+          {remainingCategories.length > 0 && (
+            <ScrollArea className="h-48">
+              <div className="space-y-2 pr-4">
+                {remainingCategories.map((category) => (
+                  <Button
+                    key={category.name}
+                    variant={selectedCategory === category.name ? "default" : "ghost"}
+                    className="w-full justify-between text-left"
+                    onClick={() => setSelectedCategory(category.name)}
+                  >
+                    <span className="truncate">{category.name}</span>
+                    <Badge variant="secondary" className="ml-2 flex-shrink-0">
+                      {category.count.toLocaleString()}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </div>
       </CardContent>
     </Card>
