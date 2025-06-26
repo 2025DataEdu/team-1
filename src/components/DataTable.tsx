@@ -125,11 +125,11 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
             {/* 고정 헤더 */}
             <div className="flex-shrink-0 bg-gray-50 border-b border-gray-200">
               <div className="flex">
-                <div className="font-bold text-gray-700 py-4 px-6 text-center w-[35%] border-r border-gray-200">목록명</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px] border-r border-gray-200">목록타입</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px] border-r border-gray-200">분류체계</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[19%] min-w-[120px] border-r border-gray-200">등록일</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[20%] min-w-[130px]">마지막수정일</div>
+                <div className="font-bold text-gray-700 py-4 px-6 text-center w-[28%] border-r border-gray-200">목록명</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[15%] min-w-[110px] border-r border-gray-200">목록타입</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[15%] min-w-[110px] border-r border-gray-200">분류체계</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[21%] min-w-[130px] border-r border-gray-200">등록일</div>
+                <div className="font-bold text-gray-700 py-4 px-4 text-center w-[21%] min-w-[140px]">마지막수정일</div>
               </div>
             </div>
             
@@ -143,17 +143,17 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                       index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
                     }`}
                   >
-                    <div className="font-medium py-5 px-6 w-[35%] border-r border-gray-100">
+                    <div className="font-medium py-5 px-6 w-[28%] border-r border-gray-100">
                       <div className="truncate" title={item.목록명}>
                         {item.목록명}
                       </div>
                     </div>
-                    <div className="py-5 px-4 w-[13%] min-w-[100px] border-r border-gray-100 flex items-center justify-center">
+                    <div className="py-5 px-4 w-[15%] min-w-[110px] border-r border-gray-100 flex items-center justify-center">
                       <Badge variant="outline" className="text-xs whitespace-nowrap">
                         {item.목록타입}
                       </Badge>
                     </div>
-                    <div className="py-5 px-4 w-[13%] min-w-[100px] border-r border-gray-100 flex items-center justify-center">
+                    <div className="py-5 px-4 w-[15%] min-w-[110px] border-r border-gray-100 flex items-center justify-center">
                       <Badge 
                         variant="secondary" 
                         className={`text-xs whitespace-nowrap ${
@@ -168,10 +168,10 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                         {item.분류체계}
                       </Badge>
                     </div>
-                    <div className="text-sm text-gray-600 py-5 px-4 w-[19%] min-w-[120px] text-center whitespace-nowrap border-r border-gray-100 flex items-center justify-center">
+                    <div className="text-sm text-gray-600 py-5 px-4 w-[21%] min-w-[130px] text-center whitespace-nowrap border-r border-gray-100 flex items-center justify-center">
                       {item.등록일}
                     </div>
-                    <div className="text-sm text-gray-600 py-5 px-4 w-[20%] min-w-[130px] text-center whitespace-nowrap flex items-center justify-center">
+                    <div className="text-sm text-gray-600 py-5 px-4 w-[21%] min-w-[140px] text-center whitespace-nowrap flex items-center justify-center">
                       {item.마지막수정일}
                     </div>
                   </div>
