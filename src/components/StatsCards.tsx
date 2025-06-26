@@ -1,10 +1,10 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
 import { useMonthlyStats } from "@/hooks/useMonthlyStats";
+import { useFilesDownload } from "@/hooks/useFilesDownload";
 
 const StatsCards = () => {
   const {
@@ -23,6 +23,10 @@ const StatsCards = () => {
     data: monthlyStatsData,
     isLoading: isMonthlyStatsLoading
   } = useMonthlyStats();
+  const {
+    data: filesDownloadData,
+    isLoading: isFilesDownloadLoading
+  } = useFilesDownload();
 
   // API에서 가져온 totalCount 사용, 로딩 중이거나 데이터가 없으면 기본값 사용
   const totalDatasetCount = apiData?.totalCount || 24892;
@@ -30,8 +34,8 @@ const StatsCards = () => {
   // Supabase에서 가져온 국토교통부 데이터 수
   const nationalTransportDataCount = supabaseData?.totalCount || 0;
 
-  // API 데이터에서 download_cnt 합산
-  const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
+  // files_download 테이블에서 가져온 실제 다운로드 수
+  const totalDownloadCount = filesDownloadData?.totalDownloads || 0;
 
   // API Call 데이터에서 실제 호출 건수 계산
   const totalApiCallCount = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
@@ -223,7 +227,14 @@ const StatsCards = () => {
                   <span className="text-sm font-medium text-purple-700">다운로드</span>
                 </div>
                 <div className="text-3xl font-bold text-purple-900 mb-2">
-                  187,432
+                  {isFilesDownloadLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
+                      <span className="text-lg">로딩중...</span>
+                    </div>
+                  ) : (
+                    totalDownloadCount.toLocaleString()
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-purple-100">
