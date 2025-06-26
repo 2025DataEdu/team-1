@@ -120,58 +120,65 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
             )}
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="font-bold text-gray-700">목록명</TableHead>
-                <TableHead className="font-bold text-gray-700">담당부서</TableHead>
-                <TableHead className="font-bold text-gray-700">목록타입</TableHead>
-                <TableHead className="font-bold text-gray-700">분류체계</TableHead>
-                <TableHead className="font-bold text-gray-700">등록일</TableHead>
-                <TableHead className="font-bold text-gray-700">마지막수정일</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {processedData.map((item) => (
-                <TableRow key={item.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium max-w-xs">
-                    <div className="truncate" title={item.목록명}>
-                      {item.목록명}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {item.담당부서}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {item.목록타입}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant="secondary" 
-                      className={`text-xs ${
-                        item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
-                        item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
-                        item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
-                        item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
-                        item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {item.분류체계}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {item.등록일}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {item.마지막수정일}
-                  </TableCell>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">목록명</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">담당부서</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">목록타입</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">분류체계</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">등록일</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">마지막수정일</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {processedData.map((item, index) => (
+                  <TableRow 
+                    key={item.id} 
+                    className={`hover:bg-blue-50 transition-colors border-b border-gray-100 ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                    }`}
+                  >
+                    <TableCell className="font-medium max-w-xs py-5 px-6">
+                      <div className="truncate" title={item.목록명}>
+                        {item.목록명}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600 py-5 px-6">
+                      {item.담당부서}
+                    </TableCell>
+                    <TableCell className="py-5 px-6">
+                      <Badge variant="outline" className="text-xs">
+                        {item.목록타입}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-5 px-6">
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs ${
+                          item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
+                          item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
+                          item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
+                          item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
+                          item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {item.분류체계}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600 py-5 px-6">
+                      {item.등록일}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600 py-5 px-6">
+                      {item.마지막수정일}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>
