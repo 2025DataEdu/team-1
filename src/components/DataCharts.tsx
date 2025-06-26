@@ -164,8 +164,6 @@ const DataCharts = ({
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">API 호출 현황 (최근5년)</CardTitle>
-          <p className="text-sm text-gray-500 mt-2">
-        </p>
         </CardHeader>
         <CardContent>
           {trendData.length > 0 ? <ResponsiveContainer width="100%" height={320}>
@@ -203,8 +201,6 @@ const DataCharts = ({
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">연도별 파일 다운로드 수 (최근5년)</CardTitle>
-          <p className="text-sm text-gray-500 mt-2">
-        </p>
         </CardHeader>
         <CardContent>
           {filesDownloadChartData.length > 0 ? <ResponsiveContainer width="100%" height={320}>
