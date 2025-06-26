@@ -4,6 +4,7 @@ import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, Ch
 import { usePublicData } from "@/hooks/usePublicDataAPI";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
+import { useMonthlyStats } from "@/hooks/useMonthlyStats";
 
 const StatsCards = () => {
   const {
@@ -18,6 +19,10 @@ const StatsCards = () => {
     data: apiCallData,
     isLoading: isApiCallLoading
   } = useApiCall();
+  const {
+    data: monthlyStatsData,
+    isLoading: isMonthlyStatsLoading
+  } = useMonthlyStats();
 
   // API에서 가져온 totalCount 사용, 로딩 중이거나 데이터가 없으면 기본값 사용
   const totalDatasetCount = apiData?.totalCount || 24892;
@@ -62,6 +67,41 @@ const StatsCards = () => {
     completed: 0,
     required: 0
   };
+
+  // 전월 대비 변화율 계산
+  const getMonthOverMonthChange = () => {
+    if (!monthlyStatsData || monthlyStatsData.length < 2) {
+      return {
+        datasets: '+5.2%',
+        nationalTransport: '+8.1%',
+        downloads: '+12.5%',
+        apiCalls: '+15.3%',
+        updatedDatasets: '+3.2%',
+        outdatedDatasets: '-2.1%'
+      };
+    }
+
+    // 최근 2개월 데이터 가져오기
+    const latest = monthlyStatsData[monthlyStatsData.length - 1];
+    const previous = monthlyStatsData[monthlyStatsData.length - 2];
+
+    const calculateChange = (current: number, prev: number) => {
+      if (prev === 0) return '+0.0%';
+      const change = ((current - prev) / prev) * 100;
+      return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+    };
+
+    return {
+      datasets: calculateChange(latest.total_datasets, previous.total_datasets),
+      nationalTransport: calculateChange(latest.national_transport_datasets, previous.national_transport_datasets),
+      downloads: calculateChange(latest.total_downloads, previous.total_downloads),
+      apiCalls: calculateChange(latest.total_api_calls, previous.total_api_calls),
+      updatedDatasets: calculateChange(latest.updated_datasets, previous.updated_datasets),
+      outdatedDatasets: calculateChange(latest.outdated_datasets, previous.outdated_datasets)
+    };
+  };
+
+  const monthOverMonthChanges = getMonthOverMonthChange();
 
   // 호출 건수를 K 단위로 포맷하는 함수
   const formatApiCallCount = (count: number) => {
@@ -114,7 +154,7 @@ const StatsCards = () => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100">
                     <TrendingUp className="h-3 w-3 text-green-600" />
-                    <span className="text-xs font-semibold text-green-700">+5.2%</span>
+                    <span className="text-xs font-semibold text-green-700">{monthOverMonthChanges.datasets}</span>
                   </div>
                   <span className="text-xs text-gray-500">전월 대비</span>
                 </div>
@@ -146,7 +186,7 @@ const StatsCards = () => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-blue-100">
                     <TrendingUp className="h-3 w-3 text-blue-600" />
-                    <span className="text-xs font-semibold text-blue-700">+8.1%</span>
+                    <span className="text-xs font-semibold text-blue-700">{monthOverMonthChanges.nationalTransport}</span>
                   </div>
                   <span className="text-xs text-blue-600">전월 대비</span>
                 </div>
@@ -188,7 +228,7 @@ const StatsCards = () => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-purple-100">
                     <TrendingUp className="h-3 w-3 text-purple-600" />
-                    <span className="text-xs font-semibold text-purple-700">+12.5%</span>
+                    <span className="text-xs font-semibold text-purple-700">{monthOverMonthChanges.downloads}</span>
                   </div>
                   <span className="text-xs text-purple-600">전월 대비</span>
                 </div>
@@ -217,7 +257,7 @@ const StatsCards = () => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-orange-100">
                     <TrendingUp className="h-3 w-3 text-orange-600" />
-                    <span className="text-xs font-semibold text-orange-700">+15.3%</span>
+                    <span className="text-xs font-semibold text-orange-700">{monthOverMonthChanges.apiCalls}</span>
                   </div>
                   <span className="text-xs text-orange-600">전월 대비</span>
                 </div>
@@ -227,7 +267,7 @@ const StatsCards = () => {
         </CardContent>
       </Card>
 
-      {/* 갱신 현황 카드 - 고정 높이 적용 */}
+      {/* 갱신 현황 카드 - 활용현황과 같은 디자인으로 변경 */}
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50 h-[450px] flex flex-col">
         <CardHeader className="pb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
@@ -244,7 +284,7 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col justify-center">
+        <CardContent className="flex-1 flex flex-col justify-between space-y-6">
           {isSupabaseLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="flex items-center space-x-2">
@@ -253,33 +293,51 @@ const StatsCards = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 h-full">
+            <>
               {/* 갱신 완료 */}
-              <div className="p-6 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200 flex-1 flex items-center">
+              <div className="relative p-5 rounded-2xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200 hover:border-green-300 transition-colors duration-200 flex-1 flex items-center">
                 <div className="flex items-center justify-between h-full w-full">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 rounded-lg bg-white shadow-sm">
-                      <CheckCircle className="h-6 w-6 text-green-600" />
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm font-medium text-green-700">갱신 완료</span>
                     </div>
-                    <span className="font-semibold text-green-800 text-lg">갱신 완료</span>
+                    <div className="text-3xl font-bold text-green-900 mb-2">
+                      {openDataStatusSummary.completed}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100">
+                        <TrendingUp className="h-3 w-3 text-green-600" />
+                        <span className="text-xs font-semibold text-green-700">{monthOverMonthChanges.updatedDatasets}</span>
+                      </div>
+                      <span className="text-xs text-green-600">전월 대비</span>
+                    </div>
                   </div>
-                  <div className="text-3xl font-bold text-green-900">{openDataStatusSummary.completed}</div>
                 </div>
               </div>
               
               {/* 갱신 필요 */}
-              <div className="p-6 rounded-xl bg-red-50 border border-red-200 hover:shadow-md transition-all duration-200 flex-1 flex items-center">
+              <div className="relative p-5 rounded-2xl bg-gradient-to-r from-red-50 to-red-100 border border-red-200 hover:border-red-300 transition-colors duration-200 flex-1 flex items-center">
                 <div className="flex items-center justify-between h-full w-full">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 rounded-lg bg-white shadow-sm">
-                      <AlertTriangle className="h-6 w-6 text-red-600" />
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      <span className="text-sm font-medium text-red-700">갱신 필요</span>
                     </div>
-                    <span className="font-semibold text-red-800 text-lg">갱신 필요</span>
+                    <div className="text-3xl font-bold text-red-900 mb-2">
+                      {openDataStatusSummary.required}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-red-100">
+                        <TrendingUp className="h-3 w-3 text-red-600" />
+                        <span className="text-xs font-semibold text-red-700">{monthOverMonthChanges.outdatedDatasets}</span>
+                      </div>
+                      <span className="text-xs text-red-600">전월 대비</span>
+                    </div>
                   </div>
-                  <div className="text-3xl font-bold text-red-900">{openDataStatusSummary.required}</div>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </CardContent>
       </Card>

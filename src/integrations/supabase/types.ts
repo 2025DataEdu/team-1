@@ -333,6 +333,48 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_stats: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          national_transport_datasets: number | null
+          outdated_datasets: number | null
+          total_api_calls: number | null
+          total_datasets: number | null
+          total_downloads: number | null
+          updated_at: string
+          updated_datasets: number | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          national_transport_datasets?: number | null
+          outdated_datasets?: number | null
+          total_api_calls?: number | null
+          total_datasets?: number | null
+          total_downloads?: number | null
+          updated_at?: string
+          updated_datasets?: number | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          national_transport_datasets?: number | null
+          outdated_datasets?: number | null
+          total_api_calls?: number | null
+          total_datasets?: number | null
+          total_downloads?: number | null
+          updated_at?: string
+          updated_datasets?: number | null
+          year?: number
+        }
+        Relationships: []
+      }
       openData: {
         Row: {
           API타입: string | null

@@ -4,7 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
-import { useMemo } from "react";
+import { useMonthlyStats } from "@/hooks/useMonthlyStats";
+import { useMemo, useState } from "react";
 
 interface DataChartsProps {
   selectedCategory: string;
@@ -14,27 +15,65 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   const { categories, isLoading } = useOpenDataCategories();
   const { data: openDataResult } = useOpenData();
   const { data: apiCallData } = useApiCall();
+  const { data: monthlyStatsData } = useMonthlyStats();
+  
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
   // 차트용 데이터 준비 (전체 제외하고 상위 7개)
   const chartData = useMemo(() => {
     return categories.slice(1, 8); // 전체를 제외하고 상위 7개
   }, [categories]);
 
-  // 연간 추이 데이터 (다운로드와 API 호출)
-  const yearlyTrend = useMemo(() => {
-    const totalApiCalls = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
-    const baseDownloads = 150000;
-    const baseApiCalls = Math.floor(totalApiCalls * 0.7);
-    
-    return [
-      { year: "2019", downloads: Math.floor(baseDownloads * 0.6), apiCalls: Math.floor(baseApiCalls * 0.5) },
-      { year: "2020", downloads: Math.floor(baseDownloads * 0.75), apiCalls: Math.floor(baseApiCalls * 0.65) },
-      { year: "2021", downloads: Math.floor(baseDownloads * 0.85), apiCalls: Math.floor(baseApiCalls * 0.78) },
-      { year: "2022", downloads: Math.floor(baseDownloads * 0.92), apiCalls: Math.floor(baseApiCalls * 0.88) },
-      { year: "2023", downloads: Math.floor(baseDownloads * 0.98), apiCalls: Math.floor(baseApiCalls * 0.95) },
-      { year: "2024", downloads: baseDownloads, apiCalls: totalApiCalls }
-    ];
-  }, [apiCallData]);
+  // 연간/월간 추이 데이터
+  const trendData = useMemo(() => {
+    if (!monthlyStatsData || monthlyStatsData.length === 0) {
+      // 기본 연간 데이터 (백업용)
+      const totalApiCalls = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
+      const baseDownloads = 150000;
+      const baseApiCalls = Math.floor(totalApiCalls * 0.7);
+      
+      return [
+        { period: "2019", downloads: Math.floor(baseDownloads * 0.6), apiCalls: Math.floor(baseApiCalls * 0.5) },
+        { period: "2020", downloads: Math.floor(baseDownloads * 0.75), apiCalls: Math.floor(baseApiCalls * 0.65) },
+        { period: "2021", downloads: Math.floor(baseDownloads * 0.85), apiCalls: Math.floor(baseApiCalls * 0.78) },
+        { period: "2022", downloads: Math.floor(baseDownloads * 0.92), apiCalls: Math.floor(baseApiCalls * 0.88) },
+        { period: "2023", downloads: Math.floor(baseDownloads * 0.98), apiCalls: Math.floor(baseApiCalls * 0.95) },
+        { period: "2024", downloads: baseDownloads, apiCalls: totalApiCalls }
+      ];
+    }
+
+    if (selectedYear) {
+      // 선택된 연도의 월별 데이터
+      const yearData = monthlyStatsData.filter(item => item.year === selectedYear);
+      return yearData.map(item => ({
+        period: `${item.month}월`,
+        downloads: item.total_downloads,
+        apiCalls: item.total_api_calls
+      }));
+    } else {
+      // 연간 데이터 (각 연도의 12월 데이터 사용)
+      const yearlyData: { [key: number]: any } = {};
+      
+      monthlyStatsData.forEach(item => {
+        if (!yearlyData[item.year] || item.month === 12) {
+          yearlyData[item.year] = {
+            period: item.year.toString(),
+            downloads: item.total_downloads,
+            apiCalls: item.total_api_calls
+          };
+        }
+      });
+      
+      return Object.values(yearlyData).sort((a: any, b: any) => parseInt(a.period) - parseInt(b.period));
+    }
+  }, [monthlyStatsData, apiCallData, selectedYear]);
+
+  // 사용 가능한 연도 목록
+  const availableYears = useMemo(() => {
+    if (!monthlyStatsData) return [];
+    const years = [...new Set(monthlyStatsData.map(item => item.year))];
+    return years.sort((a, b) => b - a); // 최신 연도부터
+  }, [monthlyStatsData]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
 
@@ -56,6 +95,37 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
         ))}
       </div>
     );
+  };
+
+  // 차트 제목 생성
+  const getChartTitle = () => {
+    if (selectedYear) {
+      return `${selectedYear}년 월별 다운로드 및 API 호출 현황`;
+    }
+    return "연간 다운로드 및 API 호출 현황 추이";
+  };
+
+  // 차트 설명 생성
+  const getChartDescription = () => {
+    if (selectedYear) {
+      return `${selectedYear}년의 월별 세부 현황입니다. 뒤로 가려면 연도를 다시 클릭하세요.`;
+    }
+    return "보라색 선: 파일 다운로드 건수 | 주황색 선: API 호출 건수 (연도 클릭 시 월별 상세보기)";
+  };
+
+  // 차트 클릭 핸들러
+  const handleChartClick = (data: any) => {
+    if (!selectedYear && data && data.activePayload && data.activePayload[0]) {
+      const year = parseInt(data.activePayload[0].payload.period);
+      if (!isNaN(year) && availableYears.includes(year)) {
+        setSelectedYear(year);
+      }
+    }
+  };
+
+  // 연도 초기화 핸들러
+  const handleResetYear = () => {
+    setSelectedYear(null);
   };
 
   if (isLoading) {
@@ -116,18 +186,30 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
 
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            연간 다운로드 및 API 호출 현황 추이
-          </CardTitle>
-          <p className="text-sm text-gray-500 mt-2">
-            보라색 선: 파일 다운로드 건수 | 주황색 선: API 호출 건수
-          </p>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-lg font-semibold text-gray-800">
+                {getChartTitle()}
+              </CardTitle>
+              <p className="text-sm text-gray-500 mt-2">
+                {getChartDescription()}
+              </p>
+            </div>
+            {selectedYear && (
+              <button
+                onClick={handleResetYear}
+                className="ml-4 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition-colors"
+              >
+                연간보기
+              </button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={yearlyTrend}>
+            <LineChart data={trendData} onClick={handleChartClick} style={{ cursor: selectedYear ? 'default' : 'pointer' }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" />
+              <XAxis dataKey="period" />
               <YAxis yAxisId="left" />
               <YAxis yAxisId="right" orientation="right" />
               <Tooltip 
