@@ -126,11 +126,11 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="font-bold text-gray-700 py-4 px-6 text-center w-[40%]">목록명</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[15%] min-w-[100px]">목록타입</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[15%] min-w-[100px]">분류체계</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[15%]">등록일</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[15%]">마지막수정일</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-6 text-center w-[35%]">목록명</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px]">목록타입</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[13%] min-w-[100px]">분류체계</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[19%] min-w-[120px]">등록일</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-4 text-center w-[20%] min-w-[130px]">마지막수정일</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -141,17 +141,17 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                         index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
                       }`}
                     >
-                      <TableCell className="font-medium py-5 px-6 w-[40%]">
+                      <TableCell className="font-medium py-5 px-6 w-[35%]">
                         <div className="truncate" title={item.목록명}>
                           {item.목록명}
                         </div>
                       </TableCell>
-                      <TableCell className="py-5 px-4 w-[15%] min-w-[100px]">
+                      <TableCell className="py-5 px-4 w-[13%] min-w-[100px]">
                         <Badge variant="outline" className="text-xs whitespace-nowrap">
                           {item.목록타입}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-5 px-4 w-[15%] min-w-[100px]">
+                      <TableCell className="py-5 px-4 w-[13%] min-w-[100px]">
                         <Badge 
                           variant="secondary" 
                           className={`text-xs whitespace-nowrap ${
@@ -166,10 +166,10 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                           {item.분류체계}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600 py-5 px-4 w-[15%] text-center">
+                      <TableCell className="text-sm text-gray-600 py-5 px-4 w-[19%] min-w-[120px] text-center whitespace-nowrap">
                         {item.등록일}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600 py-5 px-4 w-[15%] text-center">
+                      <TableCell className="text-sm text-gray-600 py-5 px-4 w-[20%] min-w-[130px] text-center whitespace-nowrap">
                         {item.마지막수정일}
                       </TableCell>
                     </TableRow>
