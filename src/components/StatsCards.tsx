@@ -1,8 +1,10 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
+
 const StatsCards = () => {
   const {
     data: apiData,
@@ -29,14 +31,13 @@ const StatsCards = () => {
   // API Call 데이터에서 실제 호출 건수 계산
   const totalApiCallCount = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
 
-  // openData 테이블에서 갱신 현황 분석
+  // openData 테이블에서 갱신 현황 분석 - 기타를 갱신 완료에 합계
   const openDataStatusSummary = supabaseData?.data ? (() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // 시간을 00:00:00으로 설정하여 날짜만 비교
 
-    let completed = 0; // 갱신 완료 (차기등록 예정일이 오늘 이후)
+    let completed = 0; // 갱신 완료 (차기등록 예정일이 오늘 이후 + 기타)
     let required = 0; // 갱신 필요 (차기등록 예정일이 오늘 이전)
-    let unknown = 0; // 정보 없음 (차기등록 예정일이 없음)
 
     supabaseData.data.forEach(item => {
       const nextRegistrationDate = item["차기등록 예정일"];
@@ -49,18 +50,17 @@ const StatsCards = () => {
           required++;
         }
       } else {
-        unknown++;
+        // 기타(링크, 1회성 등)를 갱신 완료에 합계
+        completed++;
       }
     });
     return {
       completed,
-      required,
-      unknown
+      required
     };
   })() : {
     completed: 0,
-    required: 0,
-    unknown: 0
+    required: 0
   };
 
   // 호출 건수를 K 단위로 포맷하는 함수
@@ -89,9 +89,11 @@ const StatsCards = () => {
     bgColor: "bg-orange-50",
     borderColor: "border-orange-200"
   }];
-  return <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* 공공데이터 수 카드 */}
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 h-[400px]">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -107,9 +109,9 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 flex-1">
           {/* 공공데이터포털 전체 */}
-          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200 h-32">
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200 flex-1">
             <div className="flex items-center justify-between h-full">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
@@ -117,10 +119,14 @@ const StatsCards = () => {
                   <span className="text-sm font-medium text-gray-700">공공데이터포털 전체</span>
                 </div>
                 <div className="text-3xl font-bold text-gray-900 mb-2">
-                  {isLoading ? <div className="flex items-center space-x-2">
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
                       <span className="text-lg">로딩중...</span>
-                    </div> : totalDatasetCount.toLocaleString()}
+                    </div>
+                  ) : (
+                    totalDatasetCount.toLocaleString()
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100">
@@ -134,7 +140,7 @@ const StatsCards = () => {
           </div>
           
           {/* 국토교통부 */}
-          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm h-32">
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm flex-1">
             <div className="flex items-center justify-between h-full">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
@@ -145,10 +151,14 @@ const StatsCards = () => {
                   </div>
                 </div>
                 <div className="text-3xl font-bold text-blue-900 mb-2">
-                  {isSupabaseLoading ? <div className="flex items-center space-x-2">
+                  {isSupabaseLoading ? (
+                    <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
                       <span className="text-lg">로딩중...</span>
-                    </div> : nationalTransportDataCount.toLocaleString()}
+                    </div>
+                  ) : (
+                    nationalTransportDataCount.toLocaleString()
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-blue-100">
@@ -164,7 +174,7 @@ const StatsCards = () => {
       </Card>
 
       {/* 활용현황 카드 */}
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-green-50">
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-green-50 h-[400px]">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -180,9 +190,10 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4">
-            {utilizationStats.map((stat, index) => <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
+        <CardContent className="flex-1">
+          <div className="grid grid-cols-1 gap-4 h-full">
+            {utilizationStats.map((stat, index) => (
+              <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 flex-1`}>
                 <div className="flex items-center justify-between h-full">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 rounded-lg bg-white shadow-sm">
@@ -194,13 +205,14 @@ const StatsCards = () => {
                     <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
                   </div>
                 </div>
-              </div>)}
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* 갱신 현황 카드 - openData 테이블 기반으로 변경 */}
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50">
+      {/* 갱신 현황 카드 - 기타 항목 제거 */}
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50 h-[400px]">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -216,48 +228,47 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          {isSupabaseLoading ? <div className="flex items-center justify-center h-32">
+        <CardContent className="flex-1">
+          {isSupabaseLoading ? (
+            <div className="flex items-center justify-center h-full">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 border-2 border-yellow-300 border-t-yellow-600 rounded-full animate-spin"></div>
                 <span className="text-lg text-yellow-600">로딩중...</span>
               </div>
-            </div> : <div className="grid grid-cols-1 gap-3">
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 h-full">
               {/* 갱신 완료 */}
-              <div className="p-3 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="font-medium text-green-800">갱신 완료</span>
+              <div className="p-4 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200 flex-1">
+                <div className="flex items-center justify-between h-full">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-lg bg-white shadow-sm">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
+                    <span className="font-semibold text-green-800">갱신 완료</span>
                   </div>
-                  <div className="text-lg font-bold text-green-900">{openDataStatusSummary.completed}</div>
+                  <div className="text-2xl font-bold text-green-900">{openDataStatusSummary.completed}</div>
                 </div>
               </div>
               
               {/* 갱신 필요 */}
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 hover:shadow-md transition-all duration-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <span className="font-medium text-red-800">갱신 필요</span>
+              <div className="p-4 rounded-xl bg-red-50 border border-red-200 hover:shadow-md transition-all duration-200 flex-1">
+                <div className="flex items-center justify-between h-full">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-lg bg-white shadow-sm">
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                    </div>
+                    <span className="font-semibold text-red-800">갱신 필요</span>
                   </div>
-                  <div className="text-lg font-bold text-red-900">{openDataStatusSummary.required}</div>
+                  <div className="text-2xl font-bold text-red-900">{openDataStatusSummary.required}</div>
                 </div>
               </div>
-              
-              {/* 정보 없음 */}
-              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 hover:shadow-md transition-all duration-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-gray-600" />
-                    <span className="font-medium text-gray-800">기타(링크, 1회성 등)</span>
-                  </div>
-                  <div className="text-lg font-bold text-gray-900">{openDataStatusSummary.unknown}</div>
-                </div>
-              </div>
-            </div>}
+            </div>
+          )}
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
+
 export default StatsCards;

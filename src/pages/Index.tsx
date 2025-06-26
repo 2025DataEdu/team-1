@@ -23,6 +23,9 @@ const Index = () => {
 
         <StatsCards />
         
+        {/* 월별 데이터셋 및 활용 현황 추이를 StatsCards 아래로 이동 */}
+        <DataCharts selectedCategory={selectedCategory} />
+        
         {/* 챗봇 검색창 */}
         <ChatBot />
         
@@ -33,14 +36,11 @@ const Index = () => {
             <FilterPanel 
               selectedCategory={selectedCategory} 
               setSelectedCategory={setSelectedCategory} 
-              searchTerm="" 
-              setSearchTerm={() => {}} 
             />
           </div>
           
           <div className="lg:col-span-3 space-y-6">
-            <DataCharts selectedCategory={selectedCategory} />
-            <DataTable selectedCategory={selectedCategory} searchTerm="" />
+            <DataTable selectedCategory={selectedCategory} />
           </div>
         </div>
       </div>
