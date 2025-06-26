@@ -12,7 +12,7 @@ export const useYearlyTrends = () => {
         // files_downlload 테이블에서 연도별 다운로드 수 집계
         const { data: downloadData, error: downloadError } = await supabase
           .from('files_downlload')
-          .select('통계일자, "다운로드 수"')
+          .select(`통계일자, "다운로드 수"`)
           .not('통계일자', 'is', null)
           .not('"다운로드 수"', 'is', null);
 
@@ -38,7 +38,7 @@ export const useYearlyTrends = () => {
 
         // 연도별 다운로드 집계
         const downloadByYear: { [key: number]: number } = {};
-        downloadData?.forEach(item => {
+        (downloadData as any[])?.forEach((item: any) => {
           if (item.통계일자) {
             const year = new Date(item.통계일자).getFullYear();
             if (year >= 2020 && year <= 2024) {
@@ -49,7 +49,7 @@ export const useYearlyTrends = () => {
 
         // 연도별 API 호출 집계
         const apiCallByYear: { [key: number]: number } = {};
-        apiData?.forEach(item => {
+        (apiData as any[])?.forEach((item: any) => {
           if (item.통계일자) {
             const year = new Date(item.통계일자).getFullYear();
             if (year >= 2020 && year <= 2024) {
