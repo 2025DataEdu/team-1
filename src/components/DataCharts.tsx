@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend } from "recharts";
 import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
 import { useYearlyTrends } from "@/hooks/useYearlyTrends";
+import { useFilesDownloadYearly } from "@/hooks/useFilesDownloadYearly";
 import { useMemo, useState } from "react";
 
 interface DataChartsProps {
@@ -12,6 +13,7 @@ interface DataChartsProps {
 const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   const { categories, isLoading } = useOpenDataCategories();
   const { data: yearlyTrendsData, isLoading: yearlyTrendsLoading } = useYearlyTrends();
+  const { data: filesDownloadYearlyData, isLoading: filesDownloadYearlyLoading } = useFilesDownloadYearly();
   
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
@@ -43,6 +45,20 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     console.log('데이터 없음 - 빈 배열 반환');
     return [];
   }, [yearlyTrendsData]);
+
+  // files_download 연도별 데이터 수 차트 데이터
+  const filesDownloadChartData = useMemo(() => {
+    console.log('=== files_download 차트 데이터 준비 ===');
+    console.log('filesDownloadYearlyData:', filesDownloadYearlyData);
+    
+    if (filesDownloadYearlyData && filesDownloadYearlyData.length > 0) {
+      console.log('files_download 연도별 데이터 사용:', filesDownloadYearlyData);
+      return filesDownloadYearlyData;
+    }
+    
+    console.log('files_download 데이터 없음 - 빈 배열 반환');
+    return [];
+  }, [filesDownloadYearlyData]);
 
   // Y축 도메인 계산
   const { leftYAxisDomain, rightYAxisDomain } = useMemo(() => {
@@ -93,9 +109,9 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     );
   };
 
-  if (isLoading || yearlyTrendsLoading) {
+  if (isLoading || yearlyTrendsLoading || filesDownloadYearlyLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-center h-64">
@@ -110,17 +126,25 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-gray-600">연도별 데이터 로딩 중...</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   console.log('=== 최종 차트 렌더링 ===');
   console.log('trendData:', trendData);
+  console.log('filesDownloadChartData:', filesDownloadChartData);
   console.log('leftYAxisDomain:', leftYAxisDomain);
   console.log('rightYAxisDomain:', rightYAxisDomain);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -214,6 +238,50 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
                   strokeDasharray="5 5"
                 />
               </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-gray-600">데이터를 불러오는 중...</div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="hover:shadow-lg transition-shadow duration-300">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-800">
+            연도별 파일 다운로드 데이터 수 (2020-2024)
+          </CardTitle>
+          <p className="text-sm text-gray-500 mt-2">
+            files_download 테이블의 연도별 데이터 개수 현황
+          </p>
+        </CardHeader>
+        <CardContent>
+          {filesDownloadChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={filesDownloadChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="year" />
+                <YAxis tickFormatter={formatNumber} />
+                <Tooltip 
+                  formatter={(value) => [
+                    typeof value === 'number' ? value.toLocaleString() : value, 
+                    '데이터 개수'
+                  ]}
+                  labelStyle={{ color: '#374151' }}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill="#10b981"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-64">
