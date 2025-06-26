@@ -44,11 +44,54 @@ export interface DownloadData {
   };
 }
 
-export const downloadExcel = (data: DownloadData) => {
+export const downloadExcel = async (data: DownloadData) => {
   try {
     const workbook = XLSX.utils.book_new();
 
-    // 1. 통계 시트
+    // 1. 대시보드 스크린샷을 첫 번째 시트로 추가
+    const dashboardElement = document.getElementById('dashboard-content');
+    if (dashboardElement) {
+      try {
+        // 스크롤을 맨 위로 이동
+        window.scrollTo(0, 0);
+        
+        const canvas = await html2canvas(dashboardElement, {
+          scale: 1,
+          useCORS: true,
+          logging: false,
+          width: dashboardElement.scrollWidth,
+          height: dashboardElement.scrollHeight,
+          scrollX: 0,
+          scrollY: 0
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        
+        // 스크린샷 정보를 첫 번째 시트에 추가
+        const screenshotData = [
+          ['국토교통부 공공데이터 현황 대시보드'],
+          ['생성일시: ' + new Date().toLocaleString('ko-KR')],
+          [''],
+          ['※ 대시보드 화면 캡처 이미지는 Excel의 삽입 > 그림 기능을 통해 별도로 추가하시기 바랍니다.'],
+          ['이미지 데이터: ' + imgData.substring(0, 100) + '...']
+        ];
+        const screenshotSheet = XLSX.utils.aoa_to_sheet(screenshotData);
+        XLSX.utils.book_append_sheet(workbook, screenshotSheet, '대시보드_화면');
+      } catch (error) {
+        console.error('스크린샷 생성 오류:', error);
+        // 스크린샷 실패 시 기본 정보만 추가
+        const fallbackData = [
+          ['국토교통부 공공데이터 현황 대시보드'],
+          ['생성일시: ' + new Date().toLocaleString('ko-KR')],
+          [''],
+          ['※ 대시보드 화면 캡처에 실패했습니다.']
+        ];
+        const fallbackSheet = XLSX.utils.aoa_to_sheet(fallbackData);
+        XLSX.utils.book_append_sheet(workbook, fallbackSheet, '대시보드_화면');
+      }
+    }
+
+    // 2. 통계 시트
     const statsData = [
       ['항목', '값'],
       ['총 데이터셋 수', data.stats.totalDatasets],

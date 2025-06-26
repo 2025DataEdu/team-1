@@ -3,6 +3,15 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Database, TrendingUp } from "lucide-react";
 
 const DashboardHeader = () => {
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="container mx-auto px-4 py-4">
@@ -22,7 +31,7 @@ const DashboardHeader = () => {
           <div className="flex items-center space-x-4">
             <Badge variant="outline" className="flex items-center space-x-1">
               <Calendar className="h-3 w-3" />
-              <span>2024년 6월 기준</span>
+              <span>{getCurrentDate()} 기준</span>
             </Badge>
             <Badge className="bg-green-100 text-green-800 flex items-center space-x-1">
               <TrendingUp className="h-3 w-3" />
