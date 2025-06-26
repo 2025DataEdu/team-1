@@ -279,7 +279,7 @@ export type Database = {
           },
         ]
       }
-      files_downlload: {
+      files_download: {
         Row: {
           ID: number | null
           국가중점여부: string | null

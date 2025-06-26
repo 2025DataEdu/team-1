@@ -9,17 +9,18 @@ export const useYearlyTrends = () => {
       console.log('=== API 호출 연간 추이 데이터 조회 시작 ===');
       
       try {
-        // files_downlload 테이블에서 연도별 다운로드 수 집계
+        // files_download 테이블에서 연도별 다운로드 수 집계
         const { data: downloadData, error: downloadError } = await supabase
-          .from('files_downlload')
+          .from('files_download')
           .select(`통계일자, "다운로드 수"`)
           .not('통계일자', 'is', null)
           .not('"다운로드 수"', 'is', null);
 
         if (downloadError) {
-          console.error('files_downlload 조회 오류:', downloadError);
+          console.error('files_download 조회 오류:', downloadError);
         } else {
-          console.log('files_downlload 원본 데이터 샘플:', downloadData?.slice(0, 5));
+          console.log('files_download 원본 데이터 샘플:', downloadData?.slice(0, 5));
+          console.log('files_download 총 레코드 수:', downloadData?.length || 0);
         }
 
         // api_call 테이블에서 연도별 API 호출 수 집계
@@ -31,32 +32,32 @@ export const useYearlyTrends = () => {
 
         if (apiError) {
           console.error('api_call 조회 오류:', apiError);
-          throw apiError;
+        } else {
+          console.log('api_call 원본 데이터 샘플:', apiData?.slice(0, 5));
+          console.log('api_call 총 레코드 수:', apiData?.length || 0);
         }
 
-        console.log('조회된 데이터:');
-        console.log('- files_downlload:', downloadData?.length || 0, '건');
-        console.log('- api_call:', apiData?.length || 0, '건');
-
-        // 연도별 다운로드 수 집계 (개선된 방식)
+        // 연도별 다운로드 수 집계
         const downloadByYear = new Map<number, number>();
         if (downloadData && downloadData.length > 0) {
           downloadData.forEach((item: any) => {
             if (item.통계일자) {
-              const dateStr = item.통계일자;
               let year: number;
+              const dateValue = item.통계일자;
               
-              // 다양한 날짜 형식 처리
-              if (typeof dateStr === 'string') {
-                if (dateStr.includes('-')) {
-                  year = parseInt(dateStr.split('-')[0]);
-                } else if (dateStr.length >= 4) {
-                  year = parseInt(dateStr.substring(0, 4));
+              // 날짜 형식 처리
+              if (typeof dateValue === 'string') {
+                if (dateValue.includes('-')) {
+                  year = parseInt(dateValue.split('-')[0]);
+                } else if (dateValue.length >= 4) {
+                  year = parseInt(dateValue.substring(0, 4));
                 } else {
-                  return; // 잘못된 형식 스킵
+                  return;
                 }
+              } else if (dateValue instanceof Date) {
+                year = dateValue.getFullYear();
               } else {
-                const date = new Date(dateStr);
+                const date = new Date(dateValue);
                 year = date.getFullYear();
               }
               
@@ -65,14 +66,6 @@ export const useYearlyTrends = () => {
                 if (downloadCount > 0) {
                   const currentTotal = downloadByYear.get(year) || 0;
                   downloadByYear.set(year, currentTotal + downloadCount);
-                  
-                  // 각 연도별 첫 번째 데이터 로그
-                  if (currentTotal === 0) {
-                    console.log(`${year}년 첫 다운로드 데이터:`, {
-                      통계일자: item.통계일자,
-                      다운로드수: downloadCount
-                    });
-                  }
                 }
               }
             }
@@ -84,10 +77,26 @@ export const useYearlyTrends = () => {
         if (apiData && apiData.length > 0) {
           apiData.forEach((item: any) => {
             if (item.통계일자 && item.호출건수) {
-              const date = new Date(item.통계일자);
-              const year = date.getFullYear();
+              let year: number;
+              const dateValue = item.통계일자;
               
-              if (year >= 2020 && year <= 2024) {
+              // 날짜 형식 처리
+              if (typeof dateValue === 'string') {
+                if (dateValue.includes('-')) {
+                  year = parseInt(dateValue.split('-')[0]);
+                } else if (dateValue.length >= 4) {
+                  year = parseInt(dateValue.substring(0, 4));
+                } else {
+                  return;
+                }
+              } else if (dateValue instanceof Date) {
+                year = dateValue.getFullYear();
+              } else {
+                const date = new Date(dateValue);
+                year = date.getFullYear();
+              }
+              
+              if (year >= 2020 && year <= 2024 && !isNaN(year)) {
                 const callCount = parseInt(String(item.호출건수)) || 0;
                 if (callCount > 0) {
                   const currentTotal = apiCallByYear.get(year) || 0;
@@ -98,47 +107,12 @@ export const useYearlyTrends = () => {
           });
         }
 
-        // 연도별 집계 결과 출력 (상세)
-        console.log('=== 연도별 집계 결과 (상세) ===');
+        // 연도별 집계 결과 출력
+        console.log('=== 연도별 집계 결과 ===');
         for (let year = 2020; year <= 2024; year++) {
           const downloads = downloadByYear.get(year) || 0;
           const apiCalls = apiCallByYear.get(year) || 0;
           console.log(`${year}년: 다운로드 ${downloads.toLocaleString()}건, API 호출 ${apiCalls.toLocaleString()}건`);
-        }
-
-        // files_downlload 테이블의 연도별 레코드 수 확인
-        console.log('=== files_downlload 연도별 레코드 분포 ===');
-        const yearCounts = new Map<number, number>();
-        if (downloadData) {
-          downloadData.forEach((item: any) => {
-            if (item.통계일자) {
-              let year: number;
-              const dateStr = item.통계일자;
-              
-              if (typeof dateStr === 'string') {
-                if (dateStr.includes('-')) {
-                  year = parseInt(dateStr.split('-')[0]);
-                } else if (dateStr.length >= 4) {
-                  year = parseInt(dateStr.substring(0, 4));
-                } else {
-                  return;
-                }
-              } else {
-                const date = new Date(dateStr);
-                year = date.getFullYear();
-              }
-              
-              if (year >= 2020 && year <= 2024 && !isNaN(year)) {
-                const currentCount = yearCounts.get(year) || 0;
-                yearCounts.set(year, currentCount + 1);
-              }
-            }
-          });
-        }
-        
-        for (let year = 2020; year <= 2024; year++) {
-          const recordCount = yearCounts.get(year) || 0;
-          console.log(`${year}년 레코드 수: ${recordCount}건`);
         }
 
         // 2020-2024년 연도별 데이터 생성

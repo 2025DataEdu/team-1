@@ -2,10 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend } from "recharts";
 import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
-import { useOpenData } from "@/hooks/useOpenData";
-import { useApiCall } from "@/hooks/useApiCall";
-import { useMonthlyStats } from "@/hooks/useMonthlyStats";
-import { useFilesDownload } from "@/hooks/useFilesDownload";
 import { useYearlyTrends } from "@/hooks/useYearlyTrends";
 import { useMemo, useState } from "react";
 
@@ -15,10 +11,6 @@ interface DataChartsProps {
 
 const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   const { categories, isLoading } = useOpenDataCategories();
-  const { data: openDataResult } = useOpenData();
-  const { data: apiCallData } = useApiCall();
-  const { data: monthlyStatsData } = useMonthlyStats();
-  const { data: filesDownloadData } = useFilesDownload();
   const { data: yearlyTrendsData, isLoading: yearlyTrendsLoading } = useYearlyTrends();
   
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -38,37 +30,21 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     return categories.slice(1, 8);
   }, [categories]);
 
-  // 연간/월간 추이 데이터
+  // 연간 추이 데이터 - 실제 데이터베이스 데이터만 사용
   const trendData = useMemo(() => {
     console.log('=== 차트 데이터 준비 ===');
     console.log('yearlyTrendsData:', yearlyTrendsData);
-    console.log('selectedYear:', selectedYear);
     
-    // 실제 데이터베이스에서 가져온 연도별 데이터 사용
     if (yearlyTrendsData && yearlyTrendsData.length > 0) {
-      if (!selectedYear) {
-        console.log('연간 추이 데이터 표시:', yearlyTrendsData);
-        return yearlyTrendsData;
-      }
-    }
-
-    // 월별 데이터 처리 (selectedYear가 있는 경우)
-    if (selectedYear && monthlyStatsData && monthlyStatsData.length > 0) {
-      const yearData = monthlyStatsData.filter(item => item.year === selectedYear);
-      const monthlyResult = yearData.map(item => ({
-        period: `${item.month}월`,
-        downloads: item.total_downloads,
-        apiCalls: item.total_api_calls
-      }));
-      console.log('월별 데이터 표시:', monthlyResult);
-      return monthlyResult;
+      console.log('실제 데이터베이스 데이터 사용:', yearlyTrendsData);
+      return yearlyTrendsData;
     }
     
     console.log('데이터 없음 - 빈 배열 반환');
     return [];
-  }, [yearlyTrendsData, monthlyStatsData, selectedYear]);
+  }, [yearlyTrendsData]);
 
-  // Y축 도메인 계산 - API 호출 데이터에 최적화
+  // Y축 도메인 계산
   const { leftYAxisDomain, rightYAxisDomain } = useMemo(() => {
     if (!trendData || trendData.length === 0) {
       return { leftYAxisDomain: [0, 100], rightYAxisDomain: [0, 100] };
@@ -83,7 +59,6 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
       const min = Math.min(...values);
       const max = Math.max(...values);
       
-      // API 호출 데이터가 매우 클 수 있으므로 여유 공간을 두어 표시
       const domainMin = min > 1000 ? Math.floor(min * 0.8) : 0;
       const domainMax = Math.ceil(max * 1.2);
       
@@ -95,13 +70,6 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
       rightYAxisDomain: calculateDomain(apiCallValues)
     };
   }, [trendData]);
-
-  // 사용 가능한 연도 목록
-  const availableYears = useMemo(() => {
-    if (!monthlyStatsData) return [];
-    const years = [...new Set(monthlyStatsData.map(item => item.year))];
-    return years.filter(year => year >= 2020 && year <= 2024).sort((a, b) => b - a);
-  }, [monthlyStatsData]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
 
@@ -123,35 +91,6 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
         ))}
       </div>
     );
-  };
-
-  // 차트 제목 및 설명
-  const getChartTitle = () => {
-    if (selectedYear) {
-      return `${selectedYear}년 월별 다운로드 및 API 호출 현황`;
-    }
-    return "연간 다운로드 및 API 호출 현황 추이 (2020-2024)";
-  };
-
-  const getChartDescription = () => {
-    if (selectedYear) {
-      return `${selectedYear}년의 월별 세부 현황입니다. 뒤로 가려면 연도를 다시 클릭하세요.`;
-    }
-    return "api_call 및 files_downlload 테이블의 실제 데이터 기반 2020-2024년 연간 추이 | 보라색 선: 파일 다운로드 | 주황색 선: API 호출 (연도 클릭 시 월별 상세보기)";
-  };
-
-  // 차트 클릭 핸들러
-  const handleChartClick = (data: any) => {
-    if (!selectedYear && data && data.activePayload && data.activePayload[0]) {
-      const year = parseInt(data.activePayload[0].payload.period);
-      if (!isNaN(year) && availableYears.includes(year)) {
-        setSelectedYear(year);
-      }
-    }
-  };
-
-  const handleResetYear = () => {
-    setSelectedYear(null);
   };
 
   if (isLoading || yearlyTrendsLoading) {
@@ -217,80 +156,70 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
 
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-lg font-semibold text-gray-800">
-                {getChartTitle()}
-              </CardTitle>
-              <p className="text-sm text-gray-500 mt-2">
-                {getChartDescription()}
-              </p>
-            </div>
-            {selectedYear && (
-              <button
-                onClick={handleResetYear}
-                className="ml-4 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition-colors"
-              >
-                연간보기
-              </button>
-            )}
-          </div>
+          <CardTitle className="text-lg font-semibold text-gray-800">
+            연간 다운로드 및 API 호출 현황 추이 (2020-2024)
+          </CardTitle>
+          <p className="text-sm text-gray-500 mt-2">
+            files_download 및 api_call 테이블의 실제 데이터 기반 연간 추이
+          </p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={320}>
-            <LineChart 
-              data={trendData} 
-              onClick={handleChartClick} 
-              style={{ cursor: selectedYear ? 'default' : 'pointer' }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="period" />
-              <YAxis 
-                yAxisId="left" 
-                domain={leftYAxisDomain}
-                tickFormatter={formatNumber}
-              />
-              <YAxis 
-                yAxisId="right" 
-                orientation="right" 
-                domain={rightYAxisDomain}
-                tickFormatter={formatNumber}
-              />
-              <Tooltip 
-                formatter={(value, name) => [
-                  typeof value === 'number' ? value.toLocaleString() : value, 
-                  name === 'downloads' ? '파일 다운로드 건수' : 'API 호출 건수'
-                ]}
-                labelStyle={{ color: '#374151' }}
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-              />
-              <Legend content={renderLegend} />
-              <Line 
-                yAxisId="left"
-                type="monotone" 
-                dataKey="downloads" 
-                stroke="#8b5cf6" 
-                strokeWidth={3}
-                dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 5 }}
-                name="downloads"
-              />
-              <Line 
-                yAxisId="right"
-                type="monotone" 
-                dataKey="apiCalls" 
-                stroke="#f59e0b" 
-                strokeWidth={3}
-                dot={{ fill: '#f59e0b', strokeWidth: 2, r: 5 }}
-                name="apiCalls"
-                strokeDasharray="5 5"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {trendData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="period" />
+                <YAxis 
+                  yAxisId="left" 
+                  domain={leftYAxisDomain}
+                  tickFormatter={formatNumber}
+                />
+                <YAxis 
+                  yAxisId="right" 
+                  orientation="right" 
+                  domain={rightYAxisDomain}
+                  tickFormatter={formatNumber}
+                />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    typeof value === 'number' ? value.toLocaleString() : value, 
+                    name === 'downloads' ? '파일 다운로드 건수' : 'API 호출 건수'
+                  ]}
+                  labelStyle={{ color: '#374151' }}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Legend content={renderLegend} />
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="downloads" 
+                  stroke="#8b5cf6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 5 }}
+                  name="downloads"
+                />
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="apiCalls" 
+                  stroke="#f59e0b" 
+                  strokeWidth={3}
+                  dot={{ fill: '#f59e0b', strokeWidth: 2, r: 5 }}
+                  name="apiCalls"
+                  strokeDasharray="5 5"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-gray-600">데이터를 불러오는 중...</div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
