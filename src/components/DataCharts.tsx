@@ -98,12 +98,8 @@ const DataCharts = ({
     } = props;
     return <div className="flex justify-center items-center gap-6 mt-4">
         {payload.map((entry: any, index: number) => <div key={`legend-${index}`} className="flex items-center gap-2">
-            <div className="w-4 h-1 rounded-full" style={{
-          backgroundColor: entry.color
-        }} />
-            <span className="text-sm font-medium text-gray-700">
-              {entry.dataKey === 'downloads' ? '파일 다운로드' : 'API 호출'}
-            </span>
+            
+            
           </div>)}
       </div>;
   };
