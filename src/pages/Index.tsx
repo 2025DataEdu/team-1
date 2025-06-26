@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import StatsCards from "@/components/StatsCards";
@@ -6,10 +7,12 @@ import DataTable from "@/components/DataTable";
 import FilterPanel from "@/components/FilterPanel";
 import TopUtilizationRanking from "@/components/TopUtilizationRanking";
 import ChatBot from "@/components/ChatBot";
+
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("전체");
-  const [searchTerm, setSearchTerm] = useState("");
-  return <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <DashboardHeader />
       
       <div className="container mx-auto px-4 py-6 space-y-6">
@@ -27,15 +30,22 @@ const Index = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1">
-            <FilterPanel selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <FilterPanel 
+              selectedCategory={selectedCategory} 
+              setSelectedCategory={setSelectedCategory} 
+              searchTerm="" 
+              setSearchTerm={() => {}} 
+            />
           </div>
           
           <div className="lg:col-span-3 space-y-6">
             <DataCharts selectedCategory={selectedCategory} />
-            <DataTable selectedCategory={selectedCategory} searchTerm={searchTerm} />
+            <DataTable selectedCategory={selectedCategory} searchTerm="" />
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
