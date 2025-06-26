@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend } from "recharts";
 import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
@@ -19,6 +20,16 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   const { data: filesDownloadData } = useFilesDownload();
   
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+  // 숫자 포맷팅 함수
+  const formatNumber = (value: number): string => {
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(2)}M`;
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(2)}K`;
+    }
+    return value.toString();
+  };
 
   // 차트용 데이터 준비 (전체 제외하고 상위 7개)
   const chartData = useMemo(() => {
@@ -73,6 +84,34 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
       return Object.values(yearlyData).sort((a: any, b: any) => parseInt(a.period) - parseInt(b.period));
     }
   }, [monthlyStatsData, apiCallData, filesDownloadData, selectedYear]);
+
+  // Y축 도메인 계산
+  const { leftYAxisDomain, rightYAxisDomain } = useMemo(() => {
+    if (!trendData || trendData.length === 0) {
+      return { leftYAxisDomain: [0, 100], rightYAxisDomain: [0, 100] };
+    }
+
+    const downloadValues = trendData.map(item => item.downloads).filter(val => val > 0);
+    const apiCallValues = trendData.map(item => item.apiCalls).filter(val => val > 0);
+
+    const calculateDomain = (values: number[]) => {
+      if (values.length === 0) return [0, 100];
+      
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      
+      // 최소값의 50%를 하한으로, 최대값의 150%를 상한으로 설정
+      const domainMin = Math.floor(min * 0.5);
+      const domainMax = Math.ceil(max * 1.5);
+      
+      return [domainMin, domainMax];
+    };
+
+    return {
+      leftYAxisDomain: calculateDomain(downloadValues),
+      rightYAxisDomain: calculateDomain(apiCallValues)
+    };
+  }, [trendData]);
 
   // 사용 가능한 연도 목록 (2020-2024년만)
   const availableYears = useMemo(() => {
@@ -214,8 +253,17 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
             <LineChart data={trendData} onClick={handleChartClick} style={{ cursor: selectedYear ? 'default' : 'pointer' }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
+              <YAxis 
+                yAxisId="left" 
+                domain={leftYAxisDomain}
+                tickFormatter={formatNumber}
+              />
+              <YAxis 
+                yAxisId="right" 
+                orientation="right" 
+                domain={rightYAxisDomain}
+                tickFormatter={formatNumber}
+              />
               <Tooltip 
                 formatter={(value, name) => [
                   typeof value === 'number' ? value.toLocaleString() : value, 
