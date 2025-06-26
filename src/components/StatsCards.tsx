@@ -92,9 +92,9 @@ const StatsCards = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* 공공데이터 수 카드 */}
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 h-[400px]">
-        <CardHeader className="pb-4">
+      {/* 공공데이터 수 카드 - 고정 높이 적용 */}
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 h-[450px] flex flex-col">
+        <CardHeader className="pb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
@@ -109,10 +109,10 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 flex-1">
+        <CardContent className="flex-1 flex flex-col justify-between space-y-6">
           {/* 공공데이터포털 전체 */}
-          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200 flex-1">
-            <div className="flex items-center justify-between h-full">
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 hover:border-gray-300 transition-colors duration-200 flex-1 flex items-center">
+            <div className="flex items-center justify-between h-full w-full">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-gray-400"></div>
@@ -140,8 +140,8 @@ const StatsCards = () => {
           </div>
           
           {/* 국토교통부 */}
-          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm flex-1">
-            <div className="flex items-center justify-between h-full">
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200 shadow-sm flex-1 flex items-center">
+            <div className="flex items-center justify-between h-full w-full">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
@@ -173,9 +173,9 @@ const StatsCards = () => {
         </CardContent>
       </Card>
 
-      {/* 활용현황 카드 */}
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-green-50 h-[400px]">
-        <CardHeader className="pb-4">
+      {/* 활용현황 카드 - 고정 높이 적용 */}
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-green-50 h-[450px] flex flex-col">
+        <CardHeader className="pb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
@@ -190,19 +190,19 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1">
-          <div className="grid grid-cols-1 gap-4 h-full">
+        <CardContent className="flex-1 flex flex-col justify-center">
+          <div className="grid grid-cols-1 gap-6 h-full">
             {utilizationStats.map((stat, index) => (
-              <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 flex-1`}>
-                <div className="flex items-center justify-between h-full">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-white shadow-sm">
-                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              <div key={index} className={`p-6 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 flex-1 flex items-center`}>
+                <div className="flex items-center justify-between h-full w-full">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 rounded-lg bg-white shadow-sm">
+                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
                     </div>
-                    <span className="font-semibold text-gray-800">{stat.title}</span>
+                    <span className="font-semibold text-gray-800 text-lg">{stat.title}</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                    <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
                   </div>
                 </div>
               </div>
@@ -211,9 +211,9 @@ const StatsCards = () => {
         </CardContent>
       </Card>
 
-      {/* 갱신 현황 카드 - 기타 항목 제거 */}
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50 h-[400px]">
-        <CardHeader className="pb-4">
+      {/* 갱신 현황 카드 - 고정 높이 적용 */}
+      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50 h-[450px] flex flex-col">
+        <CardHeader className="pb-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
@@ -228,7 +228,7 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1">
+        <CardContent className="flex-1 flex flex-col justify-center">
           {isSupabaseLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="flex items-center space-x-2">
@@ -239,28 +239,28 @@ const StatsCards = () => {
           ) : (
             <div className="grid grid-cols-1 gap-6 h-full">
               {/* 갱신 완료 */}
-              <div className="p-4 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200 flex-1">
-                <div className="flex items-center justify-between h-full">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-white shadow-sm">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="p-6 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200 flex-1 flex items-center">
+                <div className="flex items-center justify-between h-full w-full">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 rounded-lg bg-white shadow-sm">
+                      <CheckCircle className="h-6 w-6 text-green-600" />
                     </div>
-                    <span className="font-semibold text-green-800">갱신 완료</span>
+                    <span className="font-semibold text-green-800 text-lg">갱신 완료</span>
                   </div>
-                  <div className="text-2xl font-bold text-green-900">{openDataStatusSummary.completed}</div>
+                  <div className="text-3xl font-bold text-green-900">{openDataStatusSummary.completed}</div>
                 </div>
               </div>
               
               {/* 갱신 필요 */}
-              <div className="p-4 rounded-xl bg-red-50 border border-red-200 hover:shadow-md transition-all duration-200 flex-1">
-                <div className="flex items-center justify-between h-full">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-white shadow-sm">
-                      <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div className="p-6 rounded-xl bg-red-50 border border-red-200 hover:shadow-md transition-all duration-200 flex-1 flex items-center">
+                <div className="flex items-center justify-between h-full w-full">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 rounded-lg bg-white shadow-sm">
+                      <AlertTriangle className="h-6 w-6 text-red-600" />
                     </div>
-                    <span className="font-semibold text-red-800">갱신 필요</span>
+                    <span className="font-semibold text-red-800 text-lg">갱신 필요</span>
                   </div>
-                  <div className="text-2xl font-bold text-red-900">{openDataStatusSummary.required}</div>
+                  <div className="text-3xl font-bold text-red-900">{openDataStatusSummary.required}</div>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import ChatBot from "@/components/ChatBot";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [searchTerm, setSearchTerm] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -35,12 +36,17 @@ const Index = () => {
           <div className="lg:col-span-1">
             <FilterPanel 
               selectedCategory={selectedCategory} 
-              setSelectedCategory={setSelectedCategory} 
+              setSelectedCategory={setSelectedCategory}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
             />
           </div>
           
           <div className="lg:col-span-3 space-y-6">
-            <DataTable selectedCategory={selectedCategory} />
+            <DataTable 
+              selectedCategory={selectedCategory}
+              searchTerm={searchTerm}
+            />
           </div>
         </div>
       </div>
