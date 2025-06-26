@@ -70,24 +70,6 @@ const FilterPanel = ({
             ))}
           </div>
         </div>
-
-        <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">상위 분류</h3>
-          <div className="space-y-2">
-            {categories.slice(1, 4).map((category, index) => (
-              <div key={category.name} className="flex justify-between items-center text-sm">
-                <span className="text-gray-600 truncate">{index + 1}. {category.name}</span>
-                <Badge className={
-                  index === 0 ? "bg-red-100 text-red-800" :
-                  index === 1 ? "bg-orange-100 text-orange-800" :
-                  "bg-blue-100 text-blue-800"
-                }>
-                  {index === 0 ? "HOT" : index === 1 ? "인기" : "추천"}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

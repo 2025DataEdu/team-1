@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Building2, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useOpenData } from "@/hooks/useOpenData";
 
 interface DataTableProps {
@@ -12,11 +13,13 @@ interface DataTableProps {
 interface ProcessedDataItem {
   id: string;
   목록명: string;
-  목록타입: string;
   담당부서: string;
+  목록타입: string;
+  분류체계: string;
   등록일: string;
   마지막수정일: string;
-  분류체계: string;
+  등록일_원본: Date;
+  마지막수정일_원본: Date;
 }
 
 const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
@@ -26,12 +29,14 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   const processedData: ProcessedDataItem[] = supabaseData?.data
     ?.map((item) => ({
       id: item.ID?.toString() || Math.random().toString(),
-      목록명: (item.목록명 || '목록명 없음').replace(/^국토교통부[_\s]*/, ''), // '국토교통부_' 또는 '국토교통부 ' 제거
-      목록타입: item.목록타입 || '타입 없음',
+      목록명: (item.목록명 || '목록명 없음').replace(/^국토교통부[_\s]*/, ''),
       담당부서: item.담당부서 || '담당부서 없음',
+      목록타입: item.목록타입 || '타입 없음',
+      분류체계: item.분류체계 || '기타',
       등록일: item.등록일 ? new Date(item.등록일).toLocaleDateString() : '날짜 없음',
       마지막수정일: item.마지막수정일 ? new Date(item.마지막수정일).toLocaleDateString() : '날짜 없음',
-      분류체계: item.분류체계 || '기타'
+      등록일_원본: item.등록일 ? new Date(item.등록일) : new Date(0),
+      마지막수정일_원본: item.마지막수정일 ? new Date(item.마지막수정일) : new Date(0)
     }))
     ?.filter(item => {
       // 카테고리 필터링
@@ -49,12 +54,17 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       return true;
     })
     ?.sort((a, b) => {
-      // 마지막수정일 기준으로 내림차순 정렬 (최신순)
-      const dateA = new Date(a.마지막수정일);
-      const dateB = new Date(b.마지막수정일);
-      return dateB.getTime() - dateA.getTime();
+      // 마지막수정일 기준으로 내림차순 정렬
+      const dateCompare = b.마지막수정일_원본.getTime() - a.마지막수정일_원본.getTime();
+      
+      // 마지막수정일이 같으면 등록일 기준으로 내림차순 정렬
+      if (dateCompare === 0) {
+        return b.등록일_원본.getTime() - a.등록일_원본.getTime();
+      }
+      
+      return dateCompare;
     })
-    ?.slice(0, 15) || []; // 15개로 제한
+    ?.slice(0, 10) || []; // 10개로 제한
 
   console.log('DataTable - 처리된 데이터 수:', processedData.length);
   console.log('DataTable - 선택된 카테고리:', selectedCategory);
@@ -88,75 +98,14 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       <CardHeader className="pb-4">
         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-600" />
-          국토교통부 최신 등록 데이터셋
+          국토교통부 최신 등록 데이터셋 (상위 10개)
           <span className="text-sm font-normal text-gray-500">
             ({selectedCategory === '전체' ? '전체' : selectedCategory})
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
-          <div className="space-y-1">
-            {processedData.map((item, index) => (
-              <div 
-                key={item.id} 
-                className={`border border-gray-200 rounded-lg p-4 transition-all duration-200 hover:shadow-md ${
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 text-lg mb-2 leading-tight">
-                      {item.목록명}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-                      <div className="flex items-center gap-1">
-                        <Building2 className="h-4 w-4" />
-                        <span className="font-bold">담당부서:</span>
-                        <span>{item.담당부서}</span>
-                      </div>
-                      <Badge variant="outline" className="text-xs font-bold">
-                        {item.목록타입}
-                      </Badge>
-                      <Badge 
-                        variant="secondary" 
-                        className={`text-xs font-bold ${
-                          item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
-                          item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
-                          item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
-                          item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
-                          item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {item.분류체계}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-6 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span className="font-bold">등록:</span>
-                        <span>{item.등록일}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span className="font-bold">수정:</span>
-                        <span>{item.마지막수정일}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
-                      {index + 1}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {processedData.length === 0 && (
+        {processedData.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <div className="text-gray-500 text-lg mb-2 font-bold">
@@ -170,6 +119,59 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
               </div>
             )}
           </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-bold text-gray-700">목록명</TableHead>
+                <TableHead className="font-bold text-gray-700">담당부서</TableHead>
+                <TableHead className="font-bold text-gray-700">목록타입</TableHead>
+                <TableHead className="font-bold text-gray-700">분류체계</TableHead>
+                <TableHead className="font-bold text-gray-700">등록일</TableHead>
+                <TableHead className="font-bold text-gray-700">마지막수정일</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {processedData.map((item) => (
+                <TableRow key={item.id} className="hover:bg-gray-50">
+                  <TableCell className="font-medium max-w-xs">
+                    <div className="truncate" title={item.목록명}>
+                      {item.목록명}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {item.담당부서}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs">
+                      {item.목록타입}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-xs ${
+                        item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
+                        item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
+                        item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
+                        item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
+                        item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {item.분류체계}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {item.등록일}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {item.마지막수정일}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </CardContent>
     </Card>
