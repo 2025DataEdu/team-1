@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText } from "lucide-react";
 import { useOpenData } from "@/hooks/useOpenData";
 
@@ -71,9 +72,9 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="sticky top-6 h-[520px]">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center h-32">
+          <div className="flex items-center justify-center h-full">
             <div className="text-lg text-gray-600">데이터를 불러오는 중...</div>
           </div>
         </CardContent>
@@ -83,9 +84,9 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
 
   if (error) {
     return (
-      <Card>
+      <Card className="sticky top-6 h-[520px]">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center h-32">
+          <div className="flex items-center justify-center h-full">
             <div className="text-lg text-red-600">데이터를 불러오는데 실패했습니다.</div>
           </div>
         </CardContent>
@@ -94,8 +95,8 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   }
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="pb-4">
+    <Card className="shadow-sm sticky top-6 h-[520px] flex flex-col">
+      <CardHeader className="pb-4 flex-shrink-0">
         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-600" />
           국토교통부 최신 등록 데이터셋 (상위 10개)
@@ -104,7 +105,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         {processedData.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
@@ -120,65 +121,67 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
             )}
           </div>
         ) : (
-          <div className="rounded-lg border border-gray-200 overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-bold text-gray-700 py-4 px-6">목록명</TableHead>
-                  <TableHead className="font-bold text-gray-700 py-4 px-6">담당부서</TableHead>
-                  <TableHead className="font-bold text-gray-700 py-4 px-6">목록타입</TableHead>
-                  <TableHead className="font-bold text-gray-700 py-4 px-6">분류체계</TableHead>
-                  <TableHead className="font-bold text-gray-700 py-4 px-6">등록일</TableHead>
-                  <TableHead className="font-bold text-gray-700 py-4 px-6">마지막수정일</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {processedData.map((item, index) => (
-                  <TableRow 
-                    key={item.id} 
-                    className={`hover:bg-blue-50 transition-colors border-b border-gray-100 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
-                    }`}
-                  >
-                    <TableCell className="font-medium max-w-xs py-5 px-6">
-                      <div className="truncate" title={item.목록명}>
-                        {item.목록명}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600 py-5 px-6">
-                      {item.담당부서}
-                    </TableCell>
-                    <TableCell className="py-5 px-6">
-                      <Badge variant="outline" className="text-xs">
-                        {item.목록타입}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-5 px-6">
-                      <Badge 
-                        variant="secondary" 
-                        className={`text-xs ${
-                          item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
-                          item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
-                          item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
-                          item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
-                          item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {item.분류체계}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600 py-5 px-6">
-                      {item.등록일}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600 py-5 px-6">
-                      {item.마지막수정일}
-                    </TableCell>
+          <ScrollArea className="h-full">
+            <div className="rounded-lg border border-gray-200 overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="font-bold text-gray-700 py-4 px-6">목록명</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-6">담당부서</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-6">목록타입</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-6">분류체계</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-6">등록일</TableHead>
+                    <TableHead className="font-bold text-gray-700 py-4 px-6">마지막수정일</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {processedData.map((item, index) => (
+                    <TableRow 
+                      key={item.id} 
+                      className={`hover:bg-blue-50 transition-colors border-b border-gray-100 ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                      }`}
+                    >
+                      <TableCell className="font-medium max-w-xs py-5 px-6">
+                        <div className="truncate" title={item.목록명}>
+                          {item.목록명}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600 py-5 px-6">
+                        {item.담당부서}
+                      </TableCell>
+                      <TableCell className="py-5 px-6">
+                        <Badge variant="outline" className="text-xs">
+                          {item.목록타입}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-5 px-6">
+                        <Badge 
+                          variant="secondary" 
+                          className={`text-xs ${
+                            item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
+                            item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
+                            item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
+                            item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
+                            item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {item.분류체계}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600 py-5 px-6">
+                        {item.등록일}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600 py-5 px-6">
+                        {item.마지막수정일}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </ScrollArea>
         )}
       </CardContent>
     </Card>
