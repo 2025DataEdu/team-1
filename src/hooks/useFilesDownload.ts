@@ -6,104 +6,64 @@ export const useFilesDownload = () => {
   return useQuery({
     queryKey: ['filesDownload'],
     queryFn: async () => {
-      console.log('files_downlload 테이블 조회 시작...');
+      console.log('files_downlload 테이블 전체 조회 시작...');
       
-      // 먼저 모든 컬럼을 가져와서 실제 컬럼명 확인
-      const { data: allData, error: allError } = await supabase
+      // 먼저 테이블의 총 레코드 수 확인
+      const { count, error: countError } = await supabase
         .from('files_downlload')
-        .select('*')
-        .limit(1);
+        .select('*', { count: 'exact', head: true });
       
-      if (allError) {
-        console.error('files_downlload 전체 조회 오류:', allError);
+      if (countError) {
+        console.error('files_downlload 카운트 조회 오류:', countError);
       } else {
-        console.log('files_downlload 컬럼 확인:', allData?.[0] ? Object.keys(allData[0]) : 'No data');
+        console.log('files_downlload 총 레코드 수:', count);
       }
       
-      // 다운로드 수 컬럼을 찾기 위한 여러 시도
-      let downloadData;
-      let error;
-      
-      // 첫 번째 시도: "다운로드 수"
-      try {
-        const result = await supabase
-          .from('files_downlload')
-          .select('"다운로드 수"')
-          .not('"다운로드 수"', 'is', null);
-        
-        if (!result.error) {
-          downloadData = result.data;
-          console.log('컬럼명 "다운로드 수"로 성공');
-        } else {
-          throw result.error;
-        }
-      } catch (err) {
-        console.log('컬럼명 "다운로드 수" 실패:', err);
-        
-        // 두 번째 시도: "다운로드수"
-        try {
-          const result = await supabase
-            .from('files_downlload')
-            .select('다운로드수')
-            .not('다운로드수', 'is', null);
-          
-          if (!result.error) {
-            downloadData = result.data;
-            console.log('컬럼명 "다운로드수"로 성공');
-          } else {
-            throw result.error;
-          }
-        } catch (err2) {
-          console.log('컬럼명 "다운로드수" 실패:', err2);
-          
-          // 세 번째 시도: 전체 데이터에서 다운로드 관련 컬럼 찾기
-          const { data: fullData, error: fullError } = await supabase
-            .from('files_downlload')
-            .select('*')
-            .limit(100);
-          
-          if (fullError) {
-            error = fullError;
-          } else {
-            downloadData = fullData;
-            console.log('전체 데이터로 조회 성공');
-          }
-        }
-      }
+      // 전체 데이터 조회 (다운로드 수 컬럼만)
+      const { data, error } = await supabase
+        .from('files_downlload')
+        .select('"다운로드 수"');
       
       if (error) {
         console.error('files_downlload 조회 오류:', error);
         throw error;
       }
       
+      console.log('조회된 레코드 수:', data?.length || 0);
+      
       // 총 다운로드 수 계산
       let totalDownloads = 0;
       
-      if (downloadData && downloadData.length > 0) {
-        // 다운로드 관련 컬럼을 찾아서 합계 계산
-        const firstRow = downloadData[0];
-        const downloadColumn = Object.keys(firstRow).find(key => 
-          key.includes('다운로드') || key.toLowerCase().includes('download')
-        );
+      if (data && data.length > 0) {
+        totalDownloads = data.reduce((sum, item) => {
+          const downloadCount = item['다운로드 수'] || 0;
+          // 문자열인 경우 숫자로 변환
+          const count = typeof downloadCount === 'string' ? parseInt(downloadCount) || 0 : downloadCount;
+          return sum + count;
+        }, 0);
         
-        console.log('찾은 다운로드 컬럼:', downloadColumn);
+        console.log('총 다운로드 수 계산 완료:', totalDownloads);
+        console.log('평균 다운로드 수:', Math.round(totalDownloads / data.length));
         
-        if (downloadColumn) {
-          totalDownloads = downloadData.reduce((sum, item) => {
-            const downloadCount = item[downloadColumn] || 0;
-            return sum + (typeof downloadCount === 'string' ? parseInt(downloadCount) || 0 : downloadCount);
-          }, 0);
-        }
+        // 상위 10개 다운로드 수 확인
+        const sortedDownloads = data
+          .map(item => item['다운로드 수'] || 0)
+          .sort((a, b) => b - a)
+          .slice(0, 10);
+        console.log('상위 10개 다운로드 수:', sortedDownloads);
       }
       
       console.log('files_downlload 데이터 조회 성공:', {
-        recordCount: downloadData?.length || 0,
-        totalDownloads
+        totalRecords: data?.length || 0,
+        totalDownloads,
+        tableCount: count
       });
       
       return {
-        data: downloadData || [],
-        totalDownloads
+        data: data || [],
+        totalDownloads,
+        recordCount: data?.length || 0,
+        tableCount: count || 0
       };
     },
     staleTime: 5 * 60 * 1000, // 5분
