@@ -60,7 +60,14 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-gray-600">차트 데이터 로딩 중...</div>
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-center h-64">
@@ -73,7 +80,7 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">

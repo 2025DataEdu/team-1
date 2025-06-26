@@ -25,6 +25,9 @@ const Index = () => {
         {/* 상단 3개 카드 - 공공데이터 수, 활용현황, 갱신현황 */}
         <StatsCards />
         
+        {/* 챗봇 검색창 */}
+        <ChatBot />
+        
         {/* 중간 2개 카드 - 분류체계별 데이터 + 연간 추이 */}
         <DataCharts selectedCategory={selectedCategory} />
         
@@ -51,9 +54,6 @@ const Index = () => {
         
         {/* 하단 활용도 TOP 10 */}
         <TopUtilizationRanking />
-        
-        {/* 챗봇 검색창 */}
-        <ChatBot />
       </div>
     </div>
   );
