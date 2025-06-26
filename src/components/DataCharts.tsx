@@ -26,73 +26,49 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   // 숫자 포맷팅 함수
   const formatNumber = (value: number): string => {
     if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(2)}M`;
+      return `${(value / 1000000).toFixed(1)}M`;
     } else if (value >= 1000) {
-      return `${(value / 1000).toFixed(2)}K`;
+      return `${(value / 1000).toFixed(1)}K`;
     }
     return value.toString();
   };
 
   // 차트용 데이터 준비 (전체 제외하고 상위 7개)
   const chartData = useMemo(() => {
-    return categories.slice(1, 8); // 전체를 제외하고 상위 7개
+    return categories.slice(1, 8);
   }, [categories]);
 
-  // 연간/월간 추이 데이터 - 실제 데이터베이스 데이터 우선 사용
+  // 연간/월간 추이 데이터
   const trendData = useMemo(() => {
-    console.log('=== trendData 계산 시작 ===');
+    console.log('=== 차트 데이터 준비 ===');
     console.log('yearlyTrendsData:', yearlyTrendsData);
-    console.log('yearlyTrendsLoading:', yearlyTrendsLoading);
     console.log('selectedYear:', selectedYear);
     
-    // 실제 데이터베이스에서 가져온 연도별 데이터를 최우선으로 사용
+    // 실제 데이터베이스에서 가져온 연도별 데이터 사용
     if (yearlyTrendsData && yearlyTrendsData.length > 0) {
       if (!selectedYear) {
-        console.log('실제 데이터베이스 연도별 데이터 사용:', yearlyTrendsData);
+        console.log('연간 추이 데이터 표시:', yearlyTrendsData);
         return yearlyTrendsData;
       }
     }
 
-    // 월별 데이터 처리 (selectedYear가 있는 경우 또는 yearlyTrendsData가 없는 경우)
-    if (monthlyStatsData && monthlyStatsData.length > 0) {
-      if (selectedYear) {
-        // 선택된 연도의 월별 데이터
-        const yearData = monthlyStatsData.filter(item => item.year === selectedYear);
-        const monthlyResult = yearData.map(item => ({
-          period: `${item.month}월`,
-          downloads: item.total_downloads,
-          apiCalls: item.total_api_calls
-        }));
-        console.log('월별 데이터 반환:', monthlyResult);
-        return monthlyResult;
-      } else if (!yearlyTrendsData || yearlyTrendsData.length === 0) {
-        // yearlyTrendsData가 없을 때만 monthlyStatsData로 연간 데이터 생성
-        const yearlyData: { [key: number]: any } = {};
-        
-        monthlyStatsData.forEach(item => {
-          // 2020-2024년 범위만 포함
-          if (item.year >= 2020 && item.year <= 2024) {
-            if (!yearlyData[item.year] || item.month === 12) {
-              yearlyData[item.year] = {
-                period: item.year.toString(),
-                downloads: item.total_downloads,
-                apiCalls: item.total_api_calls
-              };
-            }
-          }
-        });
-        
-        const fallbackResult = Object.values(yearlyData).sort((a: any, b: any) => parseInt(a.period) - parseInt(b.period));
-        console.log('monthlyStats 기반 연간 데이터 반환:', fallbackResult);
-        return fallbackResult;
-      }
+    // 월별 데이터 처리 (selectedYear가 있는 경우)
+    if (selectedYear && monthlyStatsData && monthlyStatsData.length > 0) {
+      const yearData = monthlyStatsData.filter(item => item.year === selectedYear);
+      const monthlyResult = yearData.map(item => ({
+        period: `${item.month}월`,
+        downloads: item.total_downloads,
+        apiCalls: item.total_api_calls
+      }));
+      console.log('월별 데이터 표시:', monthlyResult);
+      return monthlyResult;
     }
     
-    console.log('빈 배열 반환 (데이터 없음 또는 로딩 중)');
+    console.log('데이터 없음 - 빈 배열 반환');
     return [];
-  }, [monthlyStatsData, selectedYear, yearlyTrendsData, yearlyTrendsLoading]);
+  }, [yearlyTrendsData, monthlyStatsData, selectedYear]);
 
-  // Y축 도메인 계산
+  // Y축 도메인 계산 - API 호출 데이터에 최적화
   const { leftYAxisDomain, rightYAxisDomain } = useMemo(() => {
     if (!trendData || trendData.length === 0) {
       return { leftYAxisDomain: [0, 100], rightYAxisDomain: [0, 100] };
@@ -107,9 +83,9 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
       const min = Math.min(...values);
       const max = Math.max(...values);
       
-      // 최소값의 50%를 하한으로, 최대값의 150%를 상한으로 설정
-      const domainMin = Math.floor(min * 0.5);
-      const domainMax = Math.ceil(max * 1.5);
+      // API 호출 데이터가 매우 클 수 있으므로 여유 공간을 두어 표시
+      const domainMin = min > 1000 ? Math.floor(min * 0.8) : 0;
+      const domainMax = Math.ceil(max * 1.2);
       
       return [domainMin, domainMax];
     };
@@ -120,11 +96,11 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     };
   }, [trendData]);
 
-  // 사용 가능한 연도 목록 (2020-2024년만)
+  // 사용 가능한 연도 목록
   const availableYears = useMemo(() => {
     if (!monthlyStatsData) return [];
     const years = [...new Set(monthlyStatsData.map(item => item.year))];
-    return years.filter(year => year >= 2020 && year <= 2024).sort((a, b) => b - a); // 최신 연도부터
+    return years.filter(year => year >= 2020 && year <= 2024).sort((a, b) => b - a);
   }, [monthlyStatsData]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
@@ -149,7 +125,7 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     );
   };
 
-  // 차트 제목 생성
+  // 차트 제목 및 설명
   const getChartTitle = () => {
     if (selectedYear) {
       return `${selectedYear}년 월별 다운로드 및 API 호출 현황`;
@@ -161,7 +137,7 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     if (selectedYear) {
       return `${selectedYear}년의 월별 세부 현황입니다. 뒤로 가려면 연도를 다시 클릭하세요.`;
     }
-    return "files_downlload 및 api_call 테이블의 통계일자 기준 2020년부터 2024년까지 5년간의 실제 연간 추이 | 보라색 선: 파일 다운로드 건수 | 주황색 선: API 호출 건수 (연도 클릭 시 월별 상세보기)";
+    return "api_call 및 files_downlload 테이블의 실제 데이터 기반 2020-2024년 연간 추이 | 보라색 선: 파일 다운로드 | 주황색 선: API 호출 (연도 클릭 시 월별 상세보기)";
   };
 
   // 차트 클릭 핸들러
@@ -191,7 +167,7 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-center h-64">
-              <div className="text-gray-600">차트 데이터 로딩 중...</div>
+              <div className="text-gray-600">추이 데이터 로딩 중...</div>
             </div>
           </CardContent>
         </Card>
@@ -199,8 +175,10 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     );
   }
 
-  console.log('=== 최종 렌더링 데이터 ===');
+  console.log('=== 최종 차트 렌더링 ===');
   console.log('trendData:', trendData);
+  console.log('leftYAxisDomain:', leftYAxisDomain);
+  console.log('rightYAxisDomain:', rightYAxisDomain);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -260,7 +238,11 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={trendData} onClick={handleChartClick} style={{ cursor: selectedYear ? 'default' : 'pointer' }}>
+            <LineChart 
+              data={trendData} 
+              onClick={handleChartClick} 
+              style={{ cursor: selectedYear ? 'default' : 'pointer' }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
               <YAxis 
@@ -296,7 +278,6 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
                 strokeWidth={3}
                 dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 5 }}
                 name="downloads"
-                strokeDasharray="0"
               />
               <Line 
                 yAxisId="right"

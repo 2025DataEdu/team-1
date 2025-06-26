@@ -6,7 +6,7 @@ export const useYearlyTrends = () => {
   return useQuery({
     queryKey: ['yearlyTrends'],
     queryFn: async () => {
-      console.log('연도별 추이 데이터 조회 시작...');
+      console.log('=== API 호출 연간 추이 데이터 조회 시작 ===');
       
       try {
         // files_downlload 테이블에서 연도별 다운로드 수 집계
@@ -18,7 +18,6 @@ export const useYearlyTrends = () => {
 
         if (downloadError) {
           console.error('files_downlload 조회 오류:', downloadError);
-          throw downloadError;
         }
 
         // api_call 테이블에서 연도별 API 호출 수 집계
@@ -33,41 +32,45 @@ export const useYearlyTrends = () => {
           throw apiError;
         }
 
-        console.log('조회된 데이터 건수 - files_downlload:', downloadData?.length, '건, api_call:', apiData?.length, '건');
+        console.log('조회된 데이터:');
+        console.log('- files_downlload:', downloadData?.length || 0, '건');
+        console.log('- api_call:', apiData?.length || 0, '건');
 
-        // 연도별 다운로드 수 집계 (월별 합산)
+        // 연도별 다운로드 수 집계
         const downloadByYear = new Map<number, number>();
-        (downloadData as any[])?.forEach((item: any) => {
-          if (item.통계일자 && item["다운로드 수"]) {
-            const date = new Date(item.통계일자);
-            const year = date.getFullYear();
-            
-            // 2020-2024년 범위만 처리
-            if (year >= 2020 && year <= 2024) {
-              const downloadCount = parseInt(String(item["다운로드 수"])) || 0;
-              const currentTotal = downloadByYear.get(year) || 0;
-              downloadByYear.set(year, currentTotal + downloadCount);
+        if (downloadData) {
+          downloadData.forEach((item: any) => {
+            if (item.통계일자 && item["다운로드 수"]) {
+              const date = new Date(item.통계일자);
+              const year = date.getFullYear();
+              
+              if (year >= 2020 && year <= 2024) {
+                const downloadCount = parseInt(String(item["다운로드 수"])) || 0;
+                const currentTotal = downloadByYear.get(year) || 0;
+                downloadByYear.set(year, currentTotal + downloadCount);
+              }
             }
-          }
-        });
+          });
+        }
 
-        // 연도별 API 호출 수 집계 (월별 합산)
+        // 연도별 API 호출 수 집계 (주요 데이터)
         const apiCallByYear = new Map<number, number>();
-        (apiData as any[])?.forEach((item: any) => {
-          if (item.통계일자 && item.호출건수) {
-            const date = new Date(item.통계일자);
-            const year = date.getFullYear();
-            
-            // 2020-2024년 범위만 처리
-            if (year >= 2020 && year <= 2024) {
-              const callCount = parseInt(String(item.호출건수)) || 0;
-              const currentTotal = apiCallByYear.get(year) || 0;
-              apiCallByYear.set(year, currentTotal + callCount);
+        if (apiData) {
+          apiData.forEach((item: any) => {
+            if (item.통계일자 && item.호출건수) {
+              const date = new Date(item.통계일자);
+              const year = date.getFullYear();
+              
+              if (year >= 2020 && year <= 2024) {
+                const callCount = parseInt(String(item.호출건수)) || 0;
+                const currentTotal = apiCallByYear.get(year) || 0;
+                apiCallByYear.set(year, currentTotal + callCount);
+              }
             }
-          }
-        });
+          });
+        }
 
-        // 각 연도별 집계 결과 로그
+        // 연도별 집계 결과 출력
         console.log('=== 연도별 집계 결과 ===');
         for (let year = 2020; year <= 2024; year++) {
           const downloads = downloadByYear.get(year) || 0;
@@ -88,16 +91,15 @@ export const useYearlyTrends = () => {
           });
         }
 
-        // 최종 데이터 확인
-        console.log('=== 최종 연도별 데이터 ===');
+        console.log('=== 최종 연간 추이 데이터 ===');
         yearlyData.forEach(item => {
           console.log(`${item.period}년: 다운로드 ${item.downloads.toLocaleString()}, API 호출 ${item.apiCalls.toLocaleString()}`);
         });
         
-        // 총합 계산
+        // 총합 확인
         const totalDownloads = yearlyData.reduce((sum, item) => sum + item.downloads, 0);
         const totalApiCalls = yearlyData.reduce((sum, item) => sum + item.apiCalls, 0);
-        console.log(`총 다운로드: ${totalDownloads.toLocaleString()}건, 총 API 호출: ${totalApiCalls.toLocaleString()}건`);
+        console.log(`5년간 총합 - 다운로드: ${totalDownloads.toLocaleString()}건, API 호출: ${totalApiCalls.toLocaleString()}건`);
         
         return yearlyData;
 
