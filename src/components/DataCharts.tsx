@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend } from "recharts";
 import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
@@ -29,20 +28,19 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   // 연간/월간 추이 데이터
   const trendData = useMemo(() => {
     if (!monthlyStatsData || monthlyStatsData.length === 0) {
-      // 실제 데이터를 기반으로 한 기본 연간 데이터
+      // 실제 데이터를 기반으로 한 2020-2024년 연간 데이터
       const totalApiCalls = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
       const totalDownloads = filesDownloadData?.totalRecords || 0;
       
-      // 실제 데이터를 기반으로 연간 추이 생성
+      // 실제 데이터를 기반으로 2020-2024년 5년간 연간 추이 생성
       const baseApiCalls = Math.floor(totalApiCalls * 0.8);
       const baseDownloads = Math.floor(totalDownloads * 0.8);
       
       return [
-        { period: "2019", downloads: Math.floor(baseDownloads * 0.4), apiCalls: Math.floor(baseApiCalls * 0.3) },
-        { period: "2020", downloads: Math.floor(baseDownloads * 0.55), apiCalls: Math.floor(baseApiCalls * 0.45) },
-        { period: "2021", downloads: Math.floor(baseDownloads * 0.7), apiCalls: Math.floor(baseApiCalls * 0.6) },
-        { period: "2022", downloads: Math.floor(baseDownloads * 0.82), apiCalls: Math.floor(baseApiCalls * 0.75) },
-        { period: "2023", downloads: Math.floor(baseDownloads * 0.93), apiCalls: Math.floor(baseApiCalls * 0.88) },
+        { period: "2020", downloads: Math.floor(baseDownloads * 0.5), apiCalls: Math.floor(baseApiCalls * 0.4) },
+        { period: "2021", downloads: Math.floor(baseDownloads * 0.65), apiCalls: Math.floor(baseApiCalls * 0.55) },
+        { period: "2022", downloads: Math.floor(baseDownloads * 0.78), apiCalls: Math.floor(baseApiCalls * 0.7) },
+        { period: "2023", downloads: Math.floor(baseDownloads * 0.9), apiCalls: Math.floor(baseApiCalls * 0.85) },
         { period: "2024", downloads: totalDownloads, apiCalls: totalApiCalls }
       ];
     }
@@ -56,16 +54,19 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
         apiCalls: item.total_api_calls
       }));
     } else {
-      // 연간 데이터 (각 연도의 12월 데이터 사용)
+      // 연간 데이터 (각 연도의 12월 데이터 사용, 2020-2024년만 필터링)
       const yearlyData: { [key: number]: any } = {};
       
       monthlyStatsData.forEach(item => {
-        if (!yearlyData[item.year] || item.month === 12) {
-          yearlyData[item.year] = {
-            period: item.year.toString(),
-            downloads: item.total_downloads,
-            apiCalls: item.total_api_calls
-          };
+        // 2020-2024년 범위만 포함
+        if (item.year >= 2020 && item.year <= 2024) {
+          if (!yearlyData[item.year] || item.month === 12) {
+            yearlyData[item.year] = {
+              period: item.year.toString(),
+              downloads: item.total_downloads,
+              apiCalls: item.total_api_calls
+            };
+          }
         }
       });
       
@@ -73,11 +74,11 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     }
   }, [monthlyStatsData, apiCallData, filesDownloadData, selectedYear]);
 
-  // 사용 가능한 연도 목록
+  // 사용 가능한 연도 목록 (2020-2024년만)
   const availableYears = useMemo(() => {
     if (!monthlyStatsData) return [];
     const years = [...new Set(monthlyStatsData.map(item => item.year))];
-    return years.sort((a, b) => b - a); // 최신 연도부터
+    return years.filter(year => year >= 2020 && year <= 2024).sort((a, b) => b - a); // 최신 연도부터
   }, [monthlyStatsData]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
@@ -107,14 +108,14 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     if (selectedYear) {
       return `${selectedYear}년 월별 다운로드 및 API 호출 현황`;
     }
-    return "연간 다운로드 및 API 호출 현황 추이";
+    return "연간 다운로드 및 API 호출 현황 추이 (2020-2024)";
   };
 
   const getChartDescription = () => {
     if (selectedYear) {
       return `${selectedYear}년의 월별 세부 현황입니다. 뒤로 가려면 연도를 다시 클릭하세요.`;
     }
-    return "보라색 선: 파일 다운로드 건수 | 주황색 선: API 호출 건수 (연도 클릭 시 월별 상세보기)";
+    return "2020년부터 2024년까지 5년간의 연간 추이 | 보라색 선: 파일 다운로드 건수 | 주황색 선: API 호출 건수 (연도 클릭 시 월별 상세보기)";
   };
 
   // 차트 클릭 핸들러
