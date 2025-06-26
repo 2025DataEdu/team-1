@@ -4,7 +4,6 @@ import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, Ch
 import { usePublicData } from "@/hooks/usePublicDataAPI";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
-import { getApiCallStatusSummary } from "@/utils/apiCallStatusUtils";
 
 const StatsCards = () => {
   const { data: apiData, isLoading } = usePublicData();
@@ -23,8 +22,33 @@ const StatsCards = () => {
   // API Call 데이터에서 실제 호출 건수 계산
   const totalApiCallCount = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
 
-  // API Call 데이터에서 갱신 현황 분석
-  const apiCallStatusSummary = apiCallData?.data ? getApiCallStatusSummary(apiCallData.data) : { completed: 0, required: 0, unknown: 0 };
+  // openData 테이블에서 갱신 현황 분석
+  const openDataStatusSummary = supabaseData?.data ? (() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 시간을 00:00:00으로 설정하여 날짜만 비교
+    
+    let completed = 0; // 갱신 완료 (차기등록 예정일이 오늘 이후)
+    let required = 0;  // 갱신 필요 (차기등록 예정일이 오늘 이전)
+    let unknown = 0;   // 정보 없음 (차기등록 예정일이 없음)
+    
+    supabaseData.data.forEach(item => {
+      const nextRegistrationDate = item["차기등록 예정일"];
+      if (nextRegistrationDate) {
+        const registrationDate = new Date(nextRegistrationDate);
+        registrationDate.setHours(0, 0, 0, 0);
+        
+        if (registrationDate >= today) {
+          completed++;
+        } else {
+          required++;
+        }
+      } else {
+        unknown++;
+      }
+    });
+    
+    return { completed, required, unknown };
+  })() : { completed: 0, required: 0, unknown: 0 };
 
   // 호출 건수를 K 단위로 포맷하는 함수
   const formatApiCallCount = (count: number) => {
@@ -177,7 +201,7 @@ const StatsCards = () => {
         </CardContent>
       </Card>
 
-      {/* 갱신 현황 카드 - API Call 데이터 기반으로 수정 */}
+      {/* 갱신 현황 카드 - openData 테이블 기반으로 변경 */}
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
@@ -195,7 +219,7 @@ const StatsCards = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {isApiCallLoading ? (
+          {isSupabaseLoading ? (
             <div className="flex items-center justify-center h-32">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 border-2 border-yellow-300 border-t-yellow-600 rounded-full animate-spin"></div>
@@ -211,7 +235,7 @@ const StatsCards = () => {
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="font-medium text-green-800">갱신 완료</span>
                   </div>
-                  <div className="text-lg font-bold text-green-900">{apiCallStatusSummary.completed}</div>
+                  <div className="text-lg font-bold text-green-900">{openDataStatusSummary.completed}</div>
                 </div>
               </div>
               
@@ -222,7 +246,7 @@ const StatsCards = () => {
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <span className="font-medium text-red-800">갱신 필요</span>
                   </div>
-                  <div className="text-lg font-bold text-red-900">{apiCallStatusSummary.required}</div>
+                  <div className="text-lg font-bold text-red-900">{openDataStatusSummary.required}</div>
                 </div>
               </div>
               
@@ -233,7 +257,7 @@ const StatsCards = () => {
                     <Clock className="h-4 w-4 text-gray-600" />
                     <span className="font-medium text-gray-800">정보 없음</span>
                   </div>
-                  <div className="text-lg font-bold text-gray-900">{apiCallStatusSummary.unknown}</div>
+                  <div className="text-lg font-bold text-gray-900">{openDataStatusSummary.unknown}</div>
                 </div>
               </div>
             </div>
