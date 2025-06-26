@@ -35,7 +35,7 @@ export const useYearlyTrends = () => {
 
         console.log('조회된 데이터 건수 - files_downlload:', downloadData?.length, '건, api_call:', apiData?.length, '건');
 
-        // 연도별 다운로드 수 집계
+        // 연도별 다운로드 수 집계 (월별 합산)
         const downloadByYear = new Map<number, number>();
         (downloadData as any[])?.forEach((item: any) => {
           if (item.통계일자 && item["다운로드 수"]) {
@@ -51,7 +51,7 @@ export const useYearlyTrends = () => {
           }
         });
 
-        // 연도별 API 호출 수 집계
+        // 연도별 API 호출 수 집계 (월별 합산)
         const apiCallByYear = new Map<number, number>();
         (apiData as any[])?.forEach((item: any) => {
           if (item.통계일자 && item.호출건수) {

@@ -38,7 +38,7 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     return categories.slice(1, 8); // 전체를 제외하고 상위 7개
   }, [categories]);
 
-  // 연간/월간 추이 데이터
+  // 연간/월간 추이 데이터 - 실제 데이터베이스 데이터 우선 사용
   const trendData = useMemo(() => {
     // 실제 데이터베이스에서 가져온 연도별 데이터 우선 사용
     if (yearlyTrendsData && yearlyTrendsData.length > 0 && !selectedYear) {
@@ -47,21 +47,8 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
     }
 
     if (!monthlyStatsData || monthlyStatsData.length === 0) {
-      // 폴백 데이터 - 실제 데이터를 기반으로 한 2020-2024년 연간 데이터
-      const totalApiCalls = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
-      const totalDownloads = filesDownloadData?.totalRecords || 0;
-      
-      // 실제 데이터를 기반으로 2020-2024년 5년간 연간 추이 생성
-      const baseApiCalls = Math.floor(totalApiCalls * 0.8);
-      const baseDownloads = Math.floor(totalDownloads * 0.8);
-      
-      return [
-        { period: "2020", downloads: Math.floor(baseDownloads * 0.5), apiCalls: Math.floor(baseApiCalls * 0.4) },
-        { period: "2021", downloads: Math.floor(baseDownloads * 0.65), apiCalls: Math.floor(baseApiCalls * 0.55) },
-        { period: "2022", downloads: Math.floor(baseDownloads * 0.78), apiCalls: Math.floor(baseApiCalls * 0.7) },
-        { period: "2023", downloads: Math.floor(baseDownloads * 0.9), apiCalls: Math.floor(baseApiCalls * 0.85) },
-        { period: "2024", downloads: totalDownloads, apiCalls: totalApiCalls }
-      ];
+      // 폴백 데이터 - 빈 배열 반환 (로딩 중이거나 데이터 없음)
+      return [];
     }
 
     if (selectedYear) {
@@ -91,7 +78,7 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
       
       return Object.values(yearlyData).sort((a: any, b: any) => parseInt(a.period) - parseInt(b.period));
     }
-  }, [monthlyStatsData, apiCallData, filesDownloadData, selectedYear, yearlyTrendsData]);
+  }, [monthlyStatsData, selectedYear, yearlyTrendsData]);
 
   // Y축 도메인 계산
   const { leftYAxisDomain, rightYAxisDomain } = useMemo(() => {
