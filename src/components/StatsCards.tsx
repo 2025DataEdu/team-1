@@ -73,23 +73,6 @@ const StatsCards = () => {
     return count.toLocaleString();
   };
 
-  // 활용현황 데이터 - API 호출 건수는 실제 데이터 사용
-  const utilizationStats = [{
-    title: "다운로드",
-    value: "187,432",
-    icon: Download,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    borderColor: "border-purple-200"
-  }, {
-    title: "API 호출",
-    value: isApiCallLoading ? "로딩중..." : formatApiCallCount(totalApiCallCount),
-    icon: FileText,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-    borderColor: "border-orange-200"
-  }];
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* 공공데이터 수 카드 - 고정 높이 적용 */}
@@ -190,23 +173,56 @@ const StatsCards = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col justify-center">
-          <div className="grid grid-cols-1 gap-6 h-full">
-            {utilizationStats.map((stat, index) => (
-              <div key={index} className={`p-6 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 flex-1 flex items-center`}>
-                <div className="flex items-center justify-between h-full w-full">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 rounded-lg bg-white shadow-sm">
-                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                    </div>
-                    <span className="font-semibold text-gray-800 text-lg">{stat.title}</span>
+        <CardContent className="flex-1 flex flex-col justify-between space-y-6">
+          {/* 다운로드 */}
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 hover:border-purple-300 transition-colors duration-200 flex-1 flex items-center">
+            <div className="flex items-center justify-between h-full w-full">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <span className="text-sm font-medium text-purple-700">다운로드</span>
+                </div>
+                <div className="text-3xl font-bold text-purple-900 mb-2">
+                  187,432
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-purple-100">
+                    <TrendingUp className="h-3 w-3 text-purple-600" />
+                    <span className="text-xs font-semibold text-purple-700">+12.5%</span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                  </div>
+                  <span className="text-xs text-purple-600">전월 대비</span>
                 </div>
               </div>
-            ))}
+            </div>
+          </div>
+          
+          {/* API 호출 */}
+          <div className="relative p-5 rounded-2xl bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 hover:border-orange-300 transition-colors duration-200 flex-1 flex items-center">
+            <div className="flex items-center justify-between h-full w-full">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                  <span className="text-sm font-medium text-orange-700">API 호출</span>
+                </div>
+                <div className="text-3xl font-bold text-orange-900 mb-2">
+                  {isApiCallLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 border-2 border-orange-300 border-t-orange-600 rounded-full animate-spin"></div>
+                      <span className="text-lg">로딩중...</span>
+                    </div>
+                  ) : (
+                    formatApiCallCount(totalApiCallCount)
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-orange-100">
+                    <TrendingUp className="h-3 w-3 text-orange-600" />
+                    <span className="text-xs font-semibold text-orange-700">+15.3%</span>
+                  </div>
+                  <span className="text-xs text-orange-600">전월 대비</span>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
