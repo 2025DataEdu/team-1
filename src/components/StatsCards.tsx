@@ -1,21 +1,28 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Download, FileText, Database, TrendingUp, Users, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { usePublicData } from "@/hooks/usePublicDataAPI";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
-
 const StatsCards = () => {
-  const { data: apiData, isLoading } = usePublicData();
-  const { data: supabaseData, isLoading: isSupabaseLoading } = useOpenData();
-  const { data: apiCallData, isLoading: isApiCallLoading } = useApiCall();
-  
+  const {
+    data: apiData,
+    isLoading
+  } = usePublicData();
+  const {
+    data: supabaseData,
+    isLoading: isSupabaseLoading
+  } = useOpenData();
+  const {
+    data: apiCallData,
+    isLoading: isApiCallLoading
+  } = useApiCall();
+
   // API에서 가져온 totalCount 사용, 로딩 중이거나 데이터가 없으면 기본값 사용
   const totalDatasetCount = apiData?.totalCount || 24892;
-  
+
   // Supabase에서 가져온 국토교통부 데이터 수
   const nationalTransportDataCount = supabaseData?.totalCount || 0;
-  
+
   // API 데이터에서 download_cnt 합산
   const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
 
@@ -26,17 +33,16 @@ const StatsCards = () => {
   const openDataStatusSummary = supabaseData?.data ? (() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // 시간을 00:00:00으로 설정하여 날짜만 비교
-    
+
     let completed = 0; // 갱신 완료 (차기등록 예정일이 오늘 이후)
-    let required = 0;  // 갱신 필요 (차기등록 예정일이 오늘 이전)
-    let unknown = 0;   // 정보 없음 (차기등록 예정일이 없음)
-    
+    let required = 0; // 갱신 필요 (차기등록 예정일이 오늘 이전)
+    let unknown = 0; // 정보 없음 (차기등록 예정일이 없음)
+
     supabaseData.data.forEach(item => {
       const nextRegistrationDate = item["차기등록 예정일"];
       if (nextRegistrationDate) {
         const registrationDate = new Date(nextRegistrationDate);
         registrationDate.setHours(0, 0, 0, 0);
-        
         if (registrationDate >= today) {
           completed++;
         } else {
@@ -46,9 +52,16 @@ const StatsCards = () => {
         unknown++;
       }
     });
-    
-    return { completed, required, unknown };
-  })() : { completed: 0, required: 0, unknown: 0 };
+    return {
+      completed,
+      required,
+      unknown
+    };
+  })() : {
+    completed: 0,
+    required: 0,
+    unknown: 0
+  };
 
   // 호출 건수를 K 단위로 포맷하는 함수
   const formatApiCallCount = (count: number) => {
@@ -61,27 +74,22 @@ const StatsCards = () => {
   };
 
   // 활용현황 데이터 - API 호출 건수는 실제 데이터 사용
-  const utilizationStats = [
-    {
-      title: "다운로드", 
-      value: "187,432",
-      icon: Download,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200"
-    },
-    {
-      title: "API 호출",
-      value: isApiCallLoading ? "로딩중..." : formatApiCallCount(totalApiCallCount),
-      icon: FileText,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200"
-    }
-  ];
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  const utilizationStats = [{
+    title: "다운로드",
+    value: "187,432",
+    icon: Download,
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200"
+  }, {
+    title: "API 호출",
+    value: isApiCallLoading ? "로딩중..." : formatApiCallCount(totalApiCallCount),
+    icon: FileText,
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200"
+  }];
+  return <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* 공공데이터 수 카드 */}
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
         <CardHeader className="pb-4">
@@ -109,14 +117,10 @@ const StatsCards = () => {
                   <span className="text-sm font-medium text-gray-700">공공데이터포털 전체</span>
                 </div>
                 <div className="text-3xl font-bold text-gray-900 mb-2">
-                  {isLoading ? (
-                    <div className="flex items-center space-x-2">
+                  {isLoading ? <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
                       <span className="text-lg">로딩중...</span>
-                    </div>
-                  ) : (
-                    totalDatasetCount.toLocaleString()
-                  )}
+                    </div> : totalDatasetCount.toLocaleString()}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100">
@@ -137,18 +141,14 @@ const StatsCards = () => {
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   <span className="text-sm font-bold text-blue-800">국토교통부</span>
                   <div className="px-2 py-0.5 rounded-full bg-blue-200 text-xs font-medium text-blue-800">
-                    {totalDatasetCount > 0 ? ((nationalTransportDataCount / totalDatasetCount) * 100).toFixed(1) : '0.0'}%
+                    {totalDatasetCount > 0 ? (nationalTransportDataCount / totalDatasetCount * 100).toFixed(1) : '0.0'}%
                   </div>
                 </div>
                 <div className="text-3xl font-bold text-blue-900 mb-2">
-                  {isSupabaseLoading ? (
-                    <div className="flex items-center space-x-2">
+                  {isSupabaseLoading ? <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
                       <span className="text-lg">로딩중...</span>
-                    </div>
-                  ) : (
-                    nationalTransportDataCount.toLocaleString()
-                  )}
+                    </div> : nationalTransportDataCount.toLocaleString()}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-blue-100">
@@ -182,8 +182,7 @@ const StatsCards = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-4">
-            {utilizationStats.map((stat, index) => (
-              <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
+            {utilizationStats.map((stat, index) => <div key={index} className={`p-4 rounded-xl ${stat.bgColor} border ${stat.borderColor} hover:shadow-md transition-all duration-200 h-32`}>
                 <div className="flex items-center justify-between h-full">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 rounded-lg bg-white shadow-sm">
@@ -195,8 +194,7 @@ const StatsCards = () => {
                     <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </CardContent>
       </Card>
@@ -219,15 +217,12 @@ const StatsCards = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {isSupabaseLoading ? (
-            <div className="flex items-center justify-center h-32">
+          {isSupabaseLoading ? <div className="flex items-center justify-center h-32">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 border-2 border-yellow-300 border-t-yellow-600 rounded-full animate-spin"></div>
                 <span className="text-lg text-yellow-600">로딩중...</span>
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-3">
+            </div> : <div className="grid grid-cols-1 gap-3">
               {/* 갱신 완료 */}
               <div className="p-3 rounded-xl bg-green-50 border border-green-200 hover:shadow-md transition-all duration-200">
                 <div className="flex items-center justify-between">
@@ -255,17 +250,14 @@ const StatsCards = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4 text-gray-600" />
-                    <span className="font-medium text-gray-800">정보 없음</span>
+                    <span className="font-medium text-gray-800">기타(링크, 1회성 등)</span>
                   </div>
                   <div className="text-lg font-bold text-gray-900">{openDataStatusSummary.unknown}</div>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default StatsCards;
