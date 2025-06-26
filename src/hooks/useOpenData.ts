@@ -8,11 +8,10 @@ export const useOpenData = () => {
     queryFn: async () => {
       console.log('Supabase에서 openData 조회 시작...');
       
-      // 모든 데이터를 가져오기 위해 페이지네이션을 사용하거나 범위를 늘림
+      // 행 제한 없이 모든 데이터 가져오기
       const { data, error, count } = await supabase
         .from('openData')
-        .select('*', { count: 'exact' })
-        .range(0, 2000); // 범위를 2000까지 늘려서 모든 데이터 확보
+        .select('*', { count: 'exact' });
       
       if (error) {
         console.error('Supabase 조회 오류:', error);
