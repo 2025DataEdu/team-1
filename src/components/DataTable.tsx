@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -124,11 +123,11 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
           <div className="h-full flex flex-col rounded-lg border border-gray-200 overflow-hidden">
             {/* 고정 헤더 */}
             <div className="flex-shrink-0 bg-gray-50 border-b border-gray-200">
-              <div className="flex w-full">
-                <div className="font-bold text-gray-700 py-4 px-6 text-center flex-1 min-w-0 border-r border-gray-200" style={{ flexBasis: '45%' }}>목록명</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center flex-shrink-0 border-r border-gray-200" style={{ width: '140px' }}>목록타입</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center flex-shrink-0 border-r border-gray-200" style={{ width: '140px' }}>분류체계</div>
-                <div className="font-bold text-gray-700 py-4 px-4 text-center flex-shrink-0" style={{ width: '140px' }}>마지막수정일</div>
+              <div className="grid grid-cols-12 gap-0 w-full">
+                <div className="col-span-6 font-bold text-gray-700 py-4 px-6 text-center border-r border-gray-200">목록명</div>
+                <div className="col-span-2 font-bold text-gray-700 py-4 px-4 text-center border-r border-gray-200">목록타입</div>
+                <div className="col-span-2 font-bold text-gray-700 py-4 px-4 text-center border-r border-gray-200">분류체계</div>
+                <div className="col-span-2 font-bold text-gray-700 py-4 px-4 text-center">마지막수정일</div>
               </div>
             </div>
             
@@ -138,21 +137,21 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                 {processedData.map((item, index) => (
                   <div 
                     key={item.id} 
-                    className={`flex w-full hover:bg-blue-50 transition-colors ${
+                    className={`grid grid-cols-12 gap-0 w-full hover:bg-blue-50 transition-colors ${
                       index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
                     }`}
                   >
-                    <div className="font-medium py-5 px-6 flex-1 min-w-0 border-r border-gray-100" style={{ flexBasis: '45%' }}>
+                    <div className="col-span-6 font-medium py-5 px-6 border-r border-gray-100">
                       <div className="truncate" title={item.목록명}>
                         {item.목록명}
                       </div>
                     </div>
-                    <div className="py-5 px-4 flex-shrink-0 border-r border-gray-100 flex items-center justify-center" style={{ width: '140px' }}>
+                    <div className="col-span-2 py-5 px-4 border-r border-gray-100 flex items-center justify-center">
                       <Badge variant="outline" className="text-xs whitespace-nowrap">
                         {item.목록타입}
                       </Badge>
                     </div>
-                    <div className="py-5 px-4 flex-shrink-0 border-r border-gray-100 flex items-center justify-center" style={{ width: '140px' }}>
+                    <div className="col-span-2 py-5 px-4 border-r border-gray-100 flex items-center justify-center">
                       <Badge 
                         variant="secondary" 
                         className={`text-xs whitespace-nowrap ${
@@ -167,7 +166,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                         {item.분류체계}
                       </Badge>
                     </div>
-                    <div className="text-sm text-gray-600 py-5 px-4 flex-shrink-0 text-center whitespace-nowrap flex items-center justify-center" style={{ width: '140px' }}>
+                    <div className="col-span-2 text-sm text-gray-600 py-5 px-4 text-center whitespace-nowrap flex items-center justify-center">
                       {item.마지막수정일}
                     </div>
                   </div>
