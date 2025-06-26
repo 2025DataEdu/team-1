@@ -127,7 +127,6 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                 <TableHeader>
                   <TableRow className="bg-gray-50">
                     <TableHead className="font-bold text-gray-700 py-4 px-6">목록명</TableHead>
-                    <TableHead className="font-bold text-gray-700 py-4 px-6">담당부서</TableHead>
                     <TableHead className="font-bold text-gray-700 py-4 px-6">목록타입</TableHead>
                     <TableHead className="font-bold text-gray-700 py-4 px-6">분류체계</TableHead>
                     <TableHead className="font-bold text-gray-700 py-4 px-6">등록일</TableHead>
@@ -146,9 +145,6 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                         <div className="truncate" title={item.목록명}>
                           {item.목록명}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 py-5 px-6">
-                        {item.담당부서}
                       </TableCell>
                       <TableCell className="py-5 px-6">
                         <Badge variant="outline" className="text-xs">
