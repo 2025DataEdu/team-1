@@ -98,7 +98,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       <CardHeader className="pb-4 flex-shrink-0">
         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-600" />
-          국토교통부 최신 등록 데이터셋 (상위 10개)
+          최신 등록 데이터셋 (상위 10개)
           <span className="text-sm font-normal text-gray-500">
             ({selectedCategory === '전체' ? '전체' : selectedCategory})
           </span>
