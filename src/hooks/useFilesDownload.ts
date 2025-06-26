@@ -6,7 +6,7 @@ export const useFilesDownload = () => {
   return useQuery({
     queryKey: ['filesDownload'],
     queryFn: async () => {
-      console.log('files_download 테이블 조회 시작...');
+      console.log('files_downlload 테이블 조회 시작...');
       
       const { data, error } = await supabase
         .from('files_downlload')
@@ -14,7 +14,7 @@ export const useFilesDownload = () => {
         .not('다운로드 수', 'is', null);
       
       if (error) {
-        console.error('files_download 조회 오류:', error);
+        console.error('files_downlload 조회 오류:', error);
         throw error;
       }
       
@@ -24,7 +24,7 @@ export const useFilesDownload = () => {
         return sum + downloadCount;
       }, 0) || 0;
       
-      console.log('files_download 데이터 조회 성공:', {
+      console.log('files_downlload 데이터 조회 성공:', {
         recordCount: data?.length || 0,
         totalDownloads
       });
