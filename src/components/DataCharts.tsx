@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend } from "recharts";
 import { useOpenDataCategories } from "@/hooks/useOpenDataCategories";
 import { useOpenData } from "@/hooks/useOpenData";
 import { useApiCall } from "@/hooks/useApiCall";
@@ -37,6 +37,26 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
   }, [apiCallData]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
+
+  // 범례 커스텀 렌더러
+  const renderLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <div className="flex justify-center items-center gap-6 mt-4">
+        {payload.map((entry: any, index: number) => (
+          <div key={`legend-${index}`} className="flex items-center gap-2">
+            <div 
+              className="w-4 h-1 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {entry.dataKey === 'downloads' ? '파일 다운로드' : 'API 호출'}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -92,9 +112,12 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
           <CardTitle className="text-lg font-semibold text-gray-800">
             연간 다운로드 및 API 호출 현황 추이
           </CardTitle>
+          <p className="text-sm text-gray-500 mt-2">
+            보라색 선: 파일 다운로드 건수 | 주황색 선: API 호출 건수
+          </p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={320}>
             <LineChart data={yearlyTrend}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" />
@@ -103,17 +126,26 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
               <Tooltip 
                 formatter={(value, name) => [
                   typeof value === 'number' ? value.toLocaleString() : value, 
-                  name === 'downloads' ? '다운로드 건수' : 'API 호출 건수'
+                  name === 'downloads' ? '파일 다운로드 건수' : 'API 호출 건수'
                 ]}
+                labelStyle={{ color: '#374151' }}
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
               />
+              <Legend content={renderLegend} />
               <Line 
                 yAxisId="left"
                 type="monotone" 
                 dataKey="downloads" 
                 stroke="#8b5cf6" 
                 strokeWidth={3}
-                dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+                dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 5 }}
                 name="downloads"
+                strokeDasharray="0"
               />
               <Line 
                 yAxisId="right"
@@ -121,8 +153,9 @@ const DataCharts = ({ selectedCategory }: DataChartsProps) => {
                 dataKey="apiCalls" 
                 stroke="#f59e0b" 
                 strokeWidth={3}
-                dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
+                dot={{ fill: '#f59e0b', strokeWidth: 2, r: 5 }}
                 name="apiCalls"
+                strokeDasharray="5 5"
               />
             </LineChart>
           </ResponsiveContainer>
