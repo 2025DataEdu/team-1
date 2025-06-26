@@ -20,10 +20,23 @@ const StatsCards = () => {
   // API 데이터에서 download_cnt 합산
   const totalDownloadCount = apiData?.data?.reduce((sum, item) => sum + (item.downloadCnt || 0), 0) || 523567;
 
+  // API Call 데이터에서 실제 호출 건수 계산
+  const totalApiCallCount = apiCallData?.data?.reduce((sum, item) => sum + (item.호출건수 || 0), 0) || 0;
+
   // API Call 데이터에서 갱신 현황 분석
   const apiCallStatusSummary = apiCallData?.data ? getApiCallStatusSummary(apiCallData.data) : { completed: 0, required: 0, unknown: 0 };
 
-  // 활용현황 데이터 ('활용 건수' 제거)
+  // 호출 건수를 K 단위로 포맷하는 함수
+  const formatApiCallCount = (count: number) => {
+    if (count >= 1000000) {
+      return Math.round(count / 1000000) + 'M';
+    } else if (count >= 1000) {
+      return Math.round(count / 1000) + 'K';
+    }
+    return count.toLocaleString();
+  };
+
+  // 활용현황 데이터 - API 호출 건수는 실제 데이터 사용
   const utilizationStats = [
     {
       title: "다운로드", 
@@ -35,7 +48,7 @@ const StatsCards = () => {
     },
     {
       title: "API 호출",
-      value: "892K",
+      value: isApiCallLoading ? "로딩중..." : formatApiCallCount(totalApiCallCount),
       icon: FileText,
       color: "text-orange-600",
       bgColor: "bg-orange-50",

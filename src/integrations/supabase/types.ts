@@ -77,40 +77,46 @@ export type Database = {
       api_call: {
         Row: {
           "API 타입": string | null
+          ID: number | null
           국가중점여부: string | null
           등록기관: string | null
-          목록명: string
+          목록명: string | null
           분류체계: string | null
-          서비스명: string
+          서비스명: string | null
           서비스유형: string | null
-          에러건수: number | null
+          에러건수: string | null
           이용허락범위: string | null
+          통계일자: string | null
           표준데이터셋여부: string | null
           호출건수: number | null
         }
         Insert: {
           "API 타입"?: string | null
+          ID?: number | null
           국가중점여부?: string | null
           등록기관?: string | null
-          목록명: string
+          목록명?: string | null
           분류체계?: string | null
-          서비스명: string
+          서비스명?: string | null
           서비스유형?: string | null
-          에러건수?: number | null
+          에러건수?: string | null
           이용허락범위?: string | null
+          통계일자?: string | null
           표준데이터셋여부?: string | null
           호출건수?: number | null
         }
         Update: {
           "API 타입"?: string | null
+          ID?: number | null
           국가중점여부?: string | null
           등록기관?: string | null
-          목록명?: string
+          목록명?: string | null
           분류체계?: string | null
-          서비스명?: string
+          서비스명?: string | null
           서비스유형?: string | null
-          에러건수?: number | null
+          에러건수?: string | null
           이용허락범위?: string | null
+          통계일자?: string | null
           표준데이터셋여부?: string | null
           호출건수?: number | null
         }
