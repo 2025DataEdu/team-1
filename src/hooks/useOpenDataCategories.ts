@@ -8,7 +8,7 @@ export const useOpenDataCategories = () => {
   const categoryStats = useMemo(() => {
     if (!openDataResult?.data) return [];
 
-    // 모든 데이터에서 분류체계별로 그룹화 (국토교통부 필터링 제거)
+    // 모든 데이터에서 분류체계별로 그룹화
     const categoryGroups: Record<string, number> = {};
     
     openDataResult.data.forEach(item => {
@@ -17,6 +17,7 @@ export const useOpenDataCategories = () => {
     });
 
     console.log('전체 데이터 수:', openDataResult.data.length);
+    console.log('분류체계별 그룹화:', categoryGroups);
 
     // 배열로 변환하고 정렬
     const categories = Object.entries(categoryGroups)

@@ -26,7 +26,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
   const processedData: ProcessedDataItem[] = supabaseData?.data
     ?.map((item) => ({
       id: item.ID?.toString() || Math.random().toString(),
-      목록명: (item.목록명 || '목록명 없음').replace(/^국토교통부_/, ''), // '국토교통부_' 제거
+      목록명: (item.목록명 || '목록명 없음').replace(/^국토교통부[_\s]*/, ''), // '국토교통부_' 또는 '국토교통부 ' 제거
       목록타입: item.목록타입 || '타입 없음',
       담당부서: item.담당부서 || '담당부서 없음',
       등록일: item.등록일 ? new Date(item.등록일).toLocaleDateString() : '날짜 없음',
@@ -54,7 +54,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       const dateB = new Date(b.마지막수정일);
       return dateB.getTime() - dateA.getTime();
     })
-    ?.slice(0, 15) || []; // 15개로 증가
+    ?.slice(0, 15) || []; // 15개로 제한
 
   console.log('DataTable - 처리된 데이터 수:', processedData.length);
   console.log('DataTable - 선택된 카테고리:', selectedCategory);
@@ -88,7 +88,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       <CardHeader className="pb-4">
         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-600" />
-          최신 등록 데이터셋 
+          국토교통부 최신 등록 데이터셋
           <span className="text-sm font-normal text-gray-500">
             ({selectedCategory === '전체' ? '전체' : selectedCategory})
           </span>
@@ -96,28 +96,36 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <div className="space-y-3">
+          <div className="space-y-1">
             {processedData.map((item, index) => (
-              <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+              <div 
+                key={item.id} 
+                className={`border border-gray-200 rounded-lg p-4 transition-all duration-200 hover:shadow-md ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                }`}
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 text-lg mb-2 leading-tight">
+                    <h3 className="font-bold text-gray-900 text-lg mb-2 leading-tight">
                       {item.목록명}
                     </h3>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
+                        <span className="font-bold">담당부서:</span>
                         <span>{item.담당부서}</span>
                       </div>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs font-bold">
                         {item.목록타입}
                       </Badge>
                       <Badge 
                         variant="secondary" 
-                        className={`text-xs ${
+                        className={`text-xs font-bold ${
                           item.분류체계 === '교통물류' ? 'bg-blue-100 text-blue-800' :
                           item.분류체계 === '국토관리' ? 'bg-green-100 text-green-800' :
                           item.분류체계 === '산업고용' ? 'bg-purple-100 text-purple-800' :
+                          item.분류체계 === '재난안전' ? 'bg-red-100 text-red-800' :
+                          item.분류체계 === '공공행정' ? 'bg-orange-100 text-orange-800' :
                           'bg-gray-100 text-gray-800'
                         }`}
                       >
@@ -127,16 +135,18 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
                     <div className="flex items-center gap-6 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        <span>등록: {item.등록일}</span>
+                        <span className="font-bold">등록:</span>
+                        <span>{item.등록일}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        <span>수정: {item.마지막수정일}</span>
+                        <span className="font-bold">수정:</span>
+                        <span>{item.마지막수정일}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
                       {index + 1}
                     </div>
                   </div>
@@ -149,7 +159,7 @@ const DataTable = ({ selectedCategory, searchTerm }: DataTableProps) => {
         {processedData.length === 0 && (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <div className="text-gray-500 text-lg mb-2">
+            <div className="text-gray-500 text-lg mb-2 font-bold">
               {searchTerm ? '검색 조건에 맞는 데이터가 없습니다.' : 
                selectedCategory === '전체' ? '데이터가 없습니다.' : 
                `${selectedCategory} 분류의 데이터가 없습니다.`}
