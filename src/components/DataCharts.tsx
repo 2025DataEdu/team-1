@@ -165,8 +165,7 @@ const DataCharts = ({
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">API 호출 현황 (최근5년)</CardTitle>
           <p className="text-sm text-gray-500 mt-2">
-            files_download 및 api_call 테이블의 실제 데이터 기반 연간 추이
-          </p>
+        </p>
         </CardHeader>
         <CardContent>
           {trendData.length > 0 ? <ResponsiveContainer width="100%" height={320}>
@@ -205,8 +204,7 @@ const DataCharts = ({
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">연도별 파일 다운로드 수 (최근5년)</CardTitle>
           <p className="text-sm text-gray-500 mt-2">
-            files_download 테이블의 연도별 데이터 개수 현황
-          </p>
+        </p>
         </CardHeader>
         <CardContent>
           {filesDownloadChartData.length > 0 ? <ResponsiveContainer width="100%" height={320}>
