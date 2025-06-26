@@ -6,19 +6,19 @@ export const useFilesDownload = () => {
   return useQuery({
     queryKey: ['filesDownload'],
     queryFn: async () => {
-      console.log('files_downlload 테이블 전체 레코드 수 조회 시작...');
+      console.log('files_download 테이블 전체 레코드 수 조회 시작...');
       
       // 테이블의 총 레코드 수만 조회 (count만 필요)
       const { count, error } = await supabase
-        .from('files_downlload')
+        .from('files_download')
         .select('*', { count: 'exact', head: true });
       
       if (error) {
-        console.error('files_downlload 카운트 조회 오류:', error);
+        console.error('files_download 카운트 조회 오류:', error);
         throw error;
       }
       
-      console.log('files_downlload 총 레코드 수:', count);
+      console.log('files_download 총 레코드 수:', count);
       console.log('반환할 데이터:', { totalRecords: count || 0, totalDownloads: count || 0 });
       
       return {
